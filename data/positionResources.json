@@ -1,0 +1,117 @@
+{
+	"data": [
+		{
+			"positionResourceId": 1,
+			"name": "Frontend",
+			"toolLanguageResources": [
+				{
+					"toolLanguageResourceId": 1,
+					"positionResourceId": 1,
+					"name": "Javascript"
+				},
+				{
+					"toolLanguageResourceId": 2,
+					"positionResourceId": 1,
+					"name": "ReactJS"
+				},
+				{
+					"toolLanguageResourceId": 3,
+					"positionResourceId": 1,
+					"name": "VueJS"
+				},
+				{
+					"toolLanguageResourceId": 4,
+					"positionResourceId": 1,
+					"name": "AngularJS"
+				},
+				{
+					"toolLanguageResourceId": 5,
+					"positionResourceId": 1,
+					"name": "Jquery"
+				}
+			]
+		},
+		{
+			"positionResourceId": 2,
+			"name": "Backend",
+			"toolLanguageResources": [
+				{
+					"toolLanguageResourceId": 6,
+					"positionResourceId": 2,
+					"name": "PHP"
+				},
+				{
+					"toolLanguageResourceId": 7,
+					"positionResourceId": 2,
+					"name": "Python"
+				},
+				{
+					"toolLanguageResourceId": 8,
+					"positionResourceId": 2,
+					"name": "Ruby"
+				},
+				{
+					"toolLanguageResourceId": 9,
+					"positionResourceId": 2,
+					"name": "Java"
+				},
+				{
+					"toolLanguageResourceId": 10,
+					"positionResourceId": 2,
+					"name": "Nodejs"
+				},
+				{
+					"toolLanguageResourceId": 11,
+					"positionResourceId": 2,
+					"name": "C"
+				},
+				{
+					"toolLanguageResourceId": 12,
+					"positionResourceId": 2,
+					"name": "C++"
+				},
+				{
+					"toolLanguageResourceId": 13,
+					"positionResourceId": 2,
+					"name": ".NET"
+				}
+			]
+		},
+		{
+			"positionResourceId": 3,
+			"name": "Designer",
+			"toolLanguageResources": [
+				{
+					"toolLanguageResourceId": 14,
+					"positionResourceId": 3,
+					"name": "Adobe XD"
+				},
+				{
+					"toolLanguageResourceId": 15,
+					"positionResourceId": 3,
+					"name": "Figma"
+				},
+				{
+					"toolLanguageResourceId": 16,
+					"positionResourceId": 3,
+					"name": "Illustrator"
+				},
+				{
+					"toolLanguageResourceId": 17,
+					"positionResourceId": 3,
+					"name": "InvisionStudio"
+				},
+				{
+					"toolLanguageResourceId": 18,
+					"positionResourceId": 3,
+					"name": "Photoshop"
+				},
+				{
+					"toolLanguageResourceId": 19,
+					"positionResourceId": 3,
+					"name": "Sketch"
+				}
+			]
+		}
+	]
+}
