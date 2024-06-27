@@ -8,12 +8,18 @@ interface SearchBarProps {
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, setSearchTerm, handleSearch }) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
   return (
     <>
       <input 
         type="text" 
         placeholder="Search employees..." 
         value={searchTerm}
+        onKeyDown={handleKeyPress}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="border rounded px-2 py-1"
       />

@@ -33,11 +33,28 @@ export const deleteEmployee = async (id: string) => {
   return response.data;
 };
 
+export const getEmployeeByIdApi = async (id: string) => {
+  debugger;
+  const api = createApi();
+  const response = await api.get(`/api/employees/${id}`);
+  return response.data;
+};
+
 export const createEmployeeApi = async (
   positions: Position[],
   name: string
 ) => {
   const api = createApi();
-  const response = await api.post("api/employees", { name, positions });
+  const response = await api.post("/api/employees", { name, positions });
+  return response.data;
+};
+
+export const updateEmployeeApi = async (
+  id: string,
+  positions: Position[],
+  name: string
+) => {
+  const api = createApi();
+  const response = await api.put(`/api/employees/${id}`, { name, positions });
   return response.data;
 };

@@ -15,6 +15,11 @@ export function FieldArrayToolLanguages({
   positionIndex: number;
   positionResourceId: string;
 }) {
+  const [toolLanguages, setToolLanguages] = useState<ToolLanguageResource[]>([]);
+  const { positionResources } = useAppSelector(
+    (state: RootState) => state.employees
+  );
+
   const {
     register,
     control,
@@ -24,12 +29,6 @@ export function FieldArrayToolLanguages({
     control,
     name: `positions.${positionIndex}.toolLanguages`,
   });
-
-  const [toolLanguages, setToolLanguages] = useState<ToolLanguageResource[]>([]);
-
-  const { positionResources } = useAppSelector(
-    (state: RootState) => state.employees
-  );
 
   useEffect(() => {
     if (positionResourceId && positionResources.length > 0) {
@@ -181,7 +180,7 @@ export function FieldArrayToolLanguages({
                 )}
               </div>
               <div className="mb-4">
-              <FieldArrayImages positionIndex={positionIndex} toolIndex={index} />
+              <FieldArrayImages isEdit={true} positionIndex={positionIndex} toolIndex={index} />
             </div>
             </React.Fragment>
           );

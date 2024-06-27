@@ -8,9 +8,13 @@ import { RootState } from "@/lib/store";
 import { ICreateEmployeeForm } from "../app/(employees)/create/page";
 import { FieldArrayToolLanguages } from "./FieldArrayToolLanguages";
 
-export function FieldArrayPositions() {
-  const [positionsActive, setPositionsActive] = useState<any>({});
+export function FieldArrayPositions({ isEdit = false }: { isEdit?: boolean }) {
   const dispatch = useAppDispatch();
+  const [positionsActive, setPositionsActive] = useState<any>({});
+  const { positionResources, editEmployee } = useAppSelector(
+    (state: RootState) => state.employees
+  );
+  
   const {
     register,
     control,
@@ -22,9 +26,15 @@ export function FieldArrayPositions() {
     name: "positions",
   });
 
-  const { positionResources } = useAppSelector(
-    (state: RootState) => state.employees
-  );
+  useEffect(() => {
+    if (isEdit && editEmployee) {
+      const activePositions: { [key: number]: string } = {};
+      editEmployee.positions.forEach((position, index) => {
+        activePositions[index] = position.positionResourceId;
+      });
+      setPositionsActive(activePositions);
+    }
+  }, [isEdit, editEmployee]);
 
   useEffect(() => {
     if (positionResources.length === 0) {
@@ -80,7 +90,10 @@ export function FieldArrayPositions() {
               )}
               {/* Conditionally render FieldArrayToolLanguages if positionResourceId is selected */}
               {positionsActive[index] && (
-                <FieldArrayToolLanguages positionResourceId={positionsActive[index]} positionIndex={index} />
+                <FieldArrayToolLanguages
+                  positionResourceId={positionsActive[index]}
+                  positionIndex={index}
+                />
               )}
               <hr className="mb-4" />
             </div>
@@ -98,8 +111,8 @@ export function FieldArrayPositions() {
                 {
                   id: uuid4(),
                   toolLanguageResourceId: "",
-                  from: '2023',
-                  to: '2024',
+                  from: "2023",
+                  to: "2024",
                   description: "",
                   images: [{ id: uuid4(), cdnUrl: "" }],
                 },

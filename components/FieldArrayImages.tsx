@@ -7,7 +7,8 @@ import { ArrowUpTrayIcon, XCircleIcon } from "@heroicons/react/24/solid";
 import { toast } from "react-toastify";
 import { ICreateEmployeeForm } from "@/app/(employees)/create/page";
 
-interface UploadImageComponentProps {
+interface FieldArrayImagesProps {
+  isEdit?: boolean;
   positionIndex: number;
   toolIndex: number;
 }
@@ -20,10 +21,14 @@ interface LoadingState {
   [index: number]: boolean;
 }
 
-const FieldArrayImages: React.FC<UploadImageComponentProps> = ({
+const FieldArrayImages: React.FC<FieldArrayImagesProps> = ({
+  isEdit = false,
   positionIndex,
   toolIndex,
 }) => {
+  const [imagesPreview, setImagesPreview] = useState<ImagePreview>({});
+  const [loading, setLoading] = useState<LoadingState>({});
+
   const {
     control,
     getValues,
@@ -37,30 +42,37 @@ const FieldArrayImages: React.FC<UploadImageComponentProps> = ({
     name: `positions.${positionIndex}.toolLanguages.${toolIndex}.images`,
   });
 
-  const [imagesPreview, setImagesPreview] = useState<ImagePreview>({});
-  const [loading, setLoading] = useState<LoadingState>({});
+  useEffect(() => {
+    if (isEdit) {
+      const formValues = getValues();
+      const newImagesPreview: ImagePreview = {};
+      formValues.positions[positionIndex].toolLanguages[
+        toolIndex
+      ].images.forEach((item: any, i: number) => {
+        newImagesPreview[i] = item.cdnUrl || "";
+      });
+      setImagesPreview(newImagesPreview);
 
-  // Update imagesPreview when fields change
-  // useEffect(() => {
-  //   const newImagesPreview: ImagePreview = {};
-  //   fields.forEach((item, index) => {
-  //     if (imagesPreview[index] !== undefined) {
-  //       newImagesPreview[index] = imagesPreview[index];
-  //     }
-  //   });
-  //   setImagesPreview(newImagesPreview);
-  // }, [fields]);
+      const newLoading: LoadingState = {};
+      formValues.positions[positionIndex].toolLanguages[
+        toolIndex
+      ].images.forEach((_, i: number) => {
+        newLoading[i] = false;
+      });
+      setLoading(newLoading);
+    }
+  }, [isEdit, getValues, positionIndex, toolIndex]);
 
   const handleImageUpload = async (file: File, index: number) => {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "mvbygjsu"); // Replace with your upload preset
+    formData.append("upload_preset", "mvbygjsu");
 
     setLoading((prev) => ({ ...prev, [index]: true }));
 
     try {
       const response = await axios.post(
-        `https://api.cloudinary.com/v1_1/dwhaokd0c/image/upload`, // Replace with your cloud name
+        `https://api.cloudinary.com/v1_1/dwhaokd0c/image/upload`,
         formData
       );
       const imageUrl = response.data.secure_url;

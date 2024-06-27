@@ -5,7 +5,40 @@ import { readJsonFile, writeJsonFile } from "@/utils";
 const employeesFilePath = path.join(process.cwd(), "data", "employees.json");
 const pageSize = 10; // Assuming pageSize is fixed at 10
 
-export async function DELETE(req: Request, { params } : { params: { id: string }}) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    if (!params.id) {
+      return new NextResponse("Invalid request: Missing employee id", {
+        status: 400,
+      });
+    }
+
+    const employeesData = readJsonFile(employeesFilePath);
+    const employees = employeesData.data.pageItems;
+
+    // Find employee by ID
+    const employee = employees.find(
+      (employee: any) => employee.id === params.id
+    );
+
+    if (!employee) {
+      return new NextResponse("Employee not found", { status: 404 });
+    }
+
+    return new NextResponse(JSON.stringify({ data: employee }));
+  } catch (error) {
+    console.error("[EMPLOYEES_ERROR]", error);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
+}
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
   try {
     if (!params.id) {
       return new NextResponse("Invalid request: Missing employee id", {
@@ -17,7 +50,7 @@ export async function DELETE(req: Request, { params } : { params: { id: string }
 
     // Find index of employee to delete
     const index = employees.findIndex(
-      (employee: any) => employee.id === parseInt(params.id, 10)
+      (employee: any) => employee.id === params.id
     );
 
     if (index === -1) {
@@ -46,6 +79,54 @@ export async function DELETE(req: Request, { params } : { params: { id: string }
           totalPages: totalPages,
           pageItems: employees,
         },
+      })
+    );
+  } catch (error) {
+    console.error("[EMPLOYEES_ERROR]", error);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
+}
+
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    if (!params.id) {
+      return new NextResponse("Invalid request: Missing employee id", {
+        status: 400,
+      });
+    }
+
+    const employeesData = readJsonFile(employeesFilePath);
+    let employees = employeesData.data.pageItems;
+    const body = await req.json();
+
+    // Find index of employee to update
+    const index = employees.findIndex(
+      (employee: any) => employee.id === params.id
+    );
+
+    if (index === -1) {
+      return new NextResponse("Employee not found", { status: 404 });
+    }
+
+    console.log('body: ', body);
+
+    // Update employee with new data from request body
+    employees[index] = {
+      ...employees[index],
+      ...body,
+    };
+    
+    console.log('employees: ', employees[index]);
+
+    // Save updated data back to JSON file
+    writeJsonFile(employeesFilePath, employeesData);
+
+    return new NextResponse(
+      JSON.stringify({
+        data: employees[index],
       })
     );
   } catch (error) {

@@ -4,7 +4,9 @@ import {
   getEmployees,
   getPositionResources,
   deleteEmployee,
-  createEmployeeApi
+  getEmployeeByIdApi,
+  createEmployeeApi,
+  updateEmployeeApi
 } from "../../api/employeesApi";
 import { Position } from "@/constants/employees";
 
@@ -28,10 +30,12 @@ export interface ToolLanguageResource {
 }
 
 interface EmployeesState {
+  editEmployee: Employee;
   employees: Employee[];
   positionResources: PositionResource[];
   toolLanguageResources: ToolLanguageResource[];
   loading: "idle" | "pending" | "succeeded" | "failed";
+  loadingSubmit: "idle" | "pending" | "succeeded" | "failed";
   error: string | null;
   totalItems: number;
   totalPages: number;
@@ -49,13 +53,21 @@ interface CreateEmployeeParams {
   positions: Position[];
 }
 
+interface EditEmployeeParams {
+  id: string;
+  name: string;
+  positions: Position[];
+}
+
 const initialState: EmployeesState = {
+  editEmployee: null,
   employees: [],
   positionResources: [],
   toolLanguageResources: [],
   totalItems: 0,
   totalPages: 1,
   loading: "idle",
+  loadingSubmit: "idle",
   error: null,
 };
 
@@ -84,6 +96,23 @@ export const deleteEmployeeById = createAsyncThunk(
   "employees/deleteEmployeeById",
   async (id: string) => {
     const response = await deleteEmployee(id);
+    return response;
+  }
+);
+
+export const getEmployeeById = createAsyncThunk(
+  "employees/getEmployeeById",
+  async (id: string) => {
+    const response = await getEmployeeByIdApi(id);
+    return response;
+  }
+);
+
+export const updateEmployeeById = createAsyncThunk(
+  "employees/updateEmployeeById",
+  async (params: EditEmployeeParams) => {
+    const { id, name, positions } = params;
+    const response = await updateEmployeeApi(id, positions, name);
     return response;
   }
 );
@@ -127,6 +156,7 @@ const employeeSlice = createSlice({
         state.loading = "failed";
         state.error = action.error.message || null;
       })
+
       .addCase(fetchPositionResources.pending, (state) => {
         state.loading = "pending";
       })
@@ -138,6 +168,7 @@ const employeeSlice = createSlice({
         state.loading = "failed";
         state.error = action.error.message || null;
       })
+
       .addCase(deleteEmployeeById.pending, (state) => {
         state.loading = "pending";
       })
@@ -151,16 +182,43 @@ const employeeSlice = createSlice({
         state.loading = "failed";
         state.error = action.error.message || null;
       })
+
       .addCase(createEmployee.pending, (state) => {
         state.loading = "pending";
+        state.loadingSubmit = "pending";
       })
       .addCase(createEmployee.fulfilled, (state, action) => {
         state.loading = "succeeded";
+        state.loadingSubmit = "succeeded";
       })
       .addCase(createEmployee.rejected, (state, action) => {
         state.loading = "failed";
+        state.loadingSubmit = "failed";
         state.error = action.error.message || null;
-      });
+      })
+
+      .addCase(getEmployeeById.pending, (state) => {
+        state.loading = "pending";
+      })
+      .addCase(getEmployeeById.fulfilled, (state, action) => {
+        state.loading = "succeeded";
+        state.editEmployee = action.payload.data;
+      })
+      .addCase(getEmployeeById.rejected, (state, action) => {
+        state.loading = "failed";
+        state.error = action.error.message || null;
+      })
+
+      .addCase(updateEmployeeById.pending, (state) => {
+        state.loadingSubmit = "pending";
+      })
+      .addCase(updateEmployeeById.fulfilled, (state, action) => {
+        state.loadingSubmit = "succeeded";
+      })
+      .addCase(updateEmployeeById.rejected, (state, action) => {
+        state.loadingSubmit = "failed";
+        state.error = action.error.message || null;
+      })
   },
 });
 

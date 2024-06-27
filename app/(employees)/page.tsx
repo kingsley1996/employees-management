@@ -97,7 +97,6 @@ export default function EmployeeList() {
   };
 
   const handleDelete = (id: string) => {
-    // Implement delete logic
     dispatch(deleteEmployeeById(id));
   };
 

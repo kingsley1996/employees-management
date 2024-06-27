@@ -1,7 +1,10 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
-import { createEmployee } from "@/lib/features/employees/employeeSlice";
+import {
+  getEmployeeById,
+  updateEmployeeById,
+} from "@/lib/features/employees/employeeSlice";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { FieldArrayPositions } from "@/components/FieldArrayPositions";
@@ -11,55 +14,11 @@ import { v4 as uuid4 } from "uuid";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 import { toast } from "react-toastify";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
+import { EmployeeFormSchema } from "../../create/page";
+import FormSkeleton from "@/components/FormSkeleton";
 
-export const EmployeeFormSchema = z.object({
-  name: z.string().min(1, "Name is required!"),
-  positions: z
-    .array(
-      z.object({
-        positionResourceId: z.string().min(1, "Position is required"),
-        // displayOrder: z.number(),
-        id: z.string(),
-        toolLanguages: z
-          .array(
-            z
-              .object({
-                id: z.string(),
-                toolLanguageResourceId: z
-                  .string()
-                  .min(1, "Tool/Languages is required"),
-                //   displayOrder: z.number(),
-                from: z.string().min(1, "From year is required"),
-                to: z.string().min(1, "To year is required"),
-                description: z.string().min(1, "Description is required"),
-                images: z
-                  .array(
-                    z.object({
-                      id: z.string(),
-                      cdnUrl: z.string().min(1, "Image is required"),
-                      // displayOrder: z.number(),
-                    })
-                  )
-                  .min(1, "At least one image selected"),
-              })
-              .refine(
-                (schema) => {
-                  return parseInt(schema.from) < parseInt(schema.to);
-                },
-                {
-                  message: "The year from must be greater than the year to",
-                  path: ["to"],
-                }
-              )
-          )
-          .min(1, "At least one tool/language selected"),
-      })
-    )
-    .min(1, "At least one position selected"),
-});
-
-export type ICreateEmployeeForm = z.infer<typeof EmployeeFormSchema>;
+export type IEditEmployeeForm = z.infer<typeof EmployeeFormSchema>;
 
 const defaultValues = {
   name: "",
@@ -84,29 +43,48 @@ const defaultValues = {
 export default function CreateEmployeeForm() {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const params = useParams<{ id: string }>();
+  const { id } = params;
 
-  const { loading } = useAppSelector((state: RootState) => state.employees);
+  const { loading, loadingSubmit, editEmployee } = useAppSelector(
+    (state: RootState) => state.employees
+  );
 
-  const methods = useForm<ICreateEmployeeForm>({
+  const methods = useForm<IEditEmployeeForm>({
     defaultValues: defaultValues,
     resolver: zodResolver(EmployeeFormSchema),
   });
 
   const {
     register,
+    setValue,
     handleSubmit,
     formState: { errors },
   } = methods;
 
+  useEffect(() => {
+    if (id) {
+      dispatch(getEmployeeById(id));
+    }
+  }, [id, dispatch]);
+
+  useEffect(() => {
+    if (editEmployee?.id) {
+      setValue("name", editEmployee.name);
+      setValue("positions", editEmployee.positions);
+    }
+  }, [editEmployee, setValue]);
+
   const onSubmit = async (data: any) => {
+    const { positions, name } = data;
     try {
-      await dispatch(createEmployee(data));
-      toast.success("Employee created successfully!");
+      await dispatch(updateEmployeeById({ id, positions, name }));
+      toast.success("Employee updated successfully!");
       setTimeout(() => {
         router.push("/");
       }, 300);
     } catch (error) {
-      toast.error("Failed to create employee!");
+      toast.error("Failed to update employee!");
     }
   };
 
@@ -121,7 +99,7 @@ export default function CreateEmployeeForm() {
           <ArrowLeftIcon className="h-6 w-6" />
         </Link>
         <h1 className="text-md md:text-2xl font-bold ml-4">
-          Create Employee Form
+          Edit Employee Form
         </h1>
       </div>
       <div>
@@ -142,11 +120,11 @@ export default function CreateEmployeeForm() {
               )}
             </div>
             <div className="mb-4">
-              <FieldArrayPositions />
+              <FieldArrayPositions isEdit={true} />
             </div>
             <button
               type="submit"
-              disabled={loading === "pending"}
+              disabled={loadingSubmit === "pending"}
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             >
               Submit
