@@ -13,7 +13,7 @@ import { toast } from "react-toastify";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-export const EmployeeFormSchema = z.object({
+const EmployeeFormSchema = z.object({
   name: z.string().min(1, "Name is required!"),
   positions: z
     .array(

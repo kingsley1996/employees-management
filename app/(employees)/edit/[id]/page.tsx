@@ -16,9 +16,54 @@ import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
-import { EmployeeFormSchema } from "../../create/page";
 import NotFound from "@/components/NotFoundEmployee";
 import Loading from "@/components/LoadingPage";
+
+const EmployeeFormSchema = z.object({
+  name: z.string().min(1, "Name is required!"),
+  positions: z
+    .array(
+      z.object({
+        positionResourceId: z.string().min(1, "Position is required"),
+        // displayOrder: z.number(),
+        id: z.string(),
+        toolLanguages: z
+          .array(
+            z
+              .object({
+                id: z.string(),
+                toolLanguageResourceId: z
+                  .string()
+                  .min(1, "Tool/Languages is required"),
+                //   displayOrder: z.number(),
+                from: z.string().min(1, "From year is required"),
+                to: z.string().min(1, "To year is required"),
+                description: z.string().min(1, "Description is required"),
+                images: z
+                  .array(
+                    z.object({
+                      id: z.string(),
+                      cdnUrl: z.string().min(1, "Image is required"),
+                      // displayOrder: z.number(),
+                    })
+                  )
+                  .min(1, "At least one image selected"),
+              })
+              .refine(
+                (schema) => {
+                  return parseInt(schema.from) < parseInt(schema.to);
+                },
+                {
+                  message: "The year to must be greater than the year from",
+                  path: ["to"],
+                }
+              )
+          )
+          .min(1, "At least one tool/language selected"),
+      })
+    )
+    .min(1, "At least one position selected"),
+});
 
 export type IEditEmployeeForm = z.infer<typeof EmployeeFormSchema>;
 
