@@ -3,7 +3,7 @@ import path from "path";
 import { readJsonFile, writeJsonFile } from "@/utils";
 import { v4 as uuid4 } from "uuid";
 
-const employeesFilePath = path.join(process.cwd(), "data", "employees.json");
+const employeesFilePath = path.join(process.cwd(), "tmp", "employees.json");
 
 export async function GET(req: NextRequest) {
   try {

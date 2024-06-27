@@ -2,7 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import path from "path";
 import { readJsonFile, writeJsonFile } from "@/utils";
 
-const employeesFilePath = path.join(process.cwd(), "data", "employees.json");
+const employeesFilePath = path.join(process.cwd(), "tmp", "employees.json");
 const pageSize = 10; // Assuming pageSize is fixed at 10
 
 export async function GET(

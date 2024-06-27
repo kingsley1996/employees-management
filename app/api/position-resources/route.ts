@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import path from "path";
 import { readJsonFile, writeJsonFile } from "@/utils";
 
-const positionResourcesFilePath = path.join(process.cwd(), "data", "positionResources.json");
+const positionResourcesFilePath = path.join(process.cwd(), "tmp", "positionResources.json");
 
 export async function GET() {
   try {
