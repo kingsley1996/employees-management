@@ -1,13 +1,13 @@
 export interface Position {
-    id: number;
-    positionResourceId: number;
+    id: string;
+    positionResourceId: string;
     displayOrder?: number;
     toolLanguages: ToolLanguage[];
 }
 
 export interface ToolLanguage {
-    id: number;
-    toolLanguageResourceId: number;
+    id: string;
+    toolLanguageResourceId: string;
     displayOrder: number;
     from: number;
     to: number;
@@ -16,8 +16,7 @@ export interface ToolLanguage {
 }
 
 export interface Image {
-    id: number;
-    data?: any;
+    id: string;
     cdnUrl?: string;
     displayOrder: number;
 }

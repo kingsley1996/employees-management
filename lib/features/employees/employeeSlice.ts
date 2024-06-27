@@ -4,6 +4,7 @@ import {
   getEmployees,
   getPositionResources,
   deleteEmployee,
+  createEmployeeApi
 } from "../../api/employeesApi";
 import { Position } from "@/constants/employees";
 
@@ -14,15 +15,16 @@ interface Employee {
 }
 
 interface PositionResource {
-  positionResourceId: number;
+  positionResourceId: string;
   toolLanguageResources: ToolLanguageResource[];
   name: string;
 }
 
-interface ToolLanguageResource {
-  toolLanguageResourceId: number;
-  positionResourceId: number;
+export interface ToolLanguageResource {
+  toolLanguageResourceId: string;
+  positionResourceId: string;
   name: string;
+  experience?: number;
 }
 
 interface EmployeesState {
@@ -86,18 +88,18 @@ export const deleteEmployeeById = createAsyncThunk(
   }
 );
 
-// export const createEmployee = createAsyncThunk(
-//     "employees/createEmployee",
-//     async (params: CreateEmployeeParams, { getState }) => {
-//       const { name, positions } = params;
-//       try {
-//         const response = await createEmployeeApi(positions, name);
-//         return { response };
-//       } catch (error) {
-//         throw Error("Failed to fetch employees");
-//       }
-//     }
-//   );
+export const createEmployee = createAsyncThunk(
+    "employees/createEmployee",
+    async (params: CreateEmployeeParams, { getState }) => {
+      const { name, positions } = params;
+      try {
+        const response = await createEmployeeApi(positions, name);
+        return { response };
+      } catch (error) {
+        throw Error("Failed to fetch employees");
+      }
+    }
+  );
 
 const employeeSlice = createSlice({
   name: "employees",
@@ -148,18 +150,17 @@ const employeeSlice = createSlice({
       .addCase(deleteEmployeeById.rejected, (state, action) => {
         state.loading = "failed";
         state.error = action.error.message || null;
+      })
+      .addCase(createEmployee.pending, (state) => {
+        state.loading = "pending";
+      })
+      .addCase(createEmployee.fulfilled, (state, action) => {
+        state.loading = "succeeded";
+      })
+      .addCase(createEmployee.rejected, (state, action) => {
+        state.loading = "failed";
+        state.error = action.error.message || null;
       });
-    //   .addCase(fetchToolLanguageResources.pending, (state) => {
-    //     state.loading = "pending";
-    //   })
-    //   .addCase(fetchToolLanguageResources.fulfilled, (state, action) => {
-    //     state.loading = "succeeded";
-    //     state.toolLanguageResources = action.payload;
-    //   })
-    //   .addCase(fetchToolLanguageResources.rejected, (state, action) => {
-    //     state.loading = "failed";
-    //     state.error = action.error.message || null;
-    //   });
   },
 });
 

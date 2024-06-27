@@ -7,14 +7,14 @@ import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 
 interface Image {
-  id: number;
+  id: string;
   cdnUrl: string;
   displayOrder: number;
 }
 
 interface ToolLanguage {
-  id: number;
-  toolLanguageResourceId: number;
+  id: string;
+  toolLanguageResourceId: string;
   displayOrder: number;
   from: number;
   to: number;
@@ -23,8 +23,8 @@ interface ToolLanguage {
 }
 
 interface Position {
-  id: number;
-  positionResourceId: number;
+  id: string;
+  positionResourceId: string;
   displayOrder: number;
   toolLanguages: ToolLanguage[];
 }
@@ -37,8 +37,8 @@ interface Employee {
 
 interface EmployeeCardProps {
   employee: Employee;
-  getPositionName: (positionResourceId: number) => string;
-  getToolLanguageName: (toolLanguageResourceId: number) => string;
+  getPositionName: (positionResourceId: string) => string;
+  getToolLanguageName: (toolLanguageResourceId: string) => string;
   onDelete: (id: string) => void;
 }
 
@@ -48,6 +48,10 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
   getToolLanguageName,
   onDelete,
 }) => {
+  // Gather all images from all positions and toolLanguages
+  const allImages = employee.positions.flatMap((position) =>
+    position.toolLanguages.flatMap((tool) => tool.images)
+  )
   // Configuration for carousel
   const carouselConfig = {
     responsive: {
@@ -71,10 +75,24 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
     centerMode: false,
   };
   return (
-    <div className="border p-4 my-2 relative group">
+    <div className="border rounded-md shadow-md p-4 my-2 relative group cursor-pointer transition duration-500 hover:scale-105">
       <Link href={`/edit/${employee.id}`}>
         <h3 className="font-bold text-xl">{employee.name}</h3>
       </Link>
+      <div className="mt-4">
+        <Carousel {...carouselConfig}>
+          {allImages.map((image) => (
+            <Image
+              key={image.id}
+              width={200}
+              height={200}
+              src={image.cdnUrl}
+              alt="Tool/language"
+              className="object-cover w-full h-72"
+            />
+          ))}
+        </Carousel>
+      </div>
       <div>
         {employee.positions.map((position) => (
           <div key={position.id} className="my-2">
@@ -88,21 +106,8 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
                   <p>
                     {tool.from} - {tool.to}
                   </p>
-                  <p>{tool.description}</p>
-                  <div className="carousel space-x-2">
-                    <Carousel {...carouselConfig}>
-                      {tool.images.map((image) => (
-                        <Image
-                          width={250}
-                          height={250}
-                          key={image.id}
-                          src={image.cdnUrl}
-                          alt="Tool"
-                          className="object-cover w-full h-72"
-                        />
-                      ))}
-                    </Carousel>
-                  </div>
+                  <pre className="truncate whitespace-pre-wrap break-words">{tool.description}</pre>
+                  <div className="carousel space-x-2"></div>
                 </div>
               ))}
             </div>
@@ -111,7 +116,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
       </div>
       <button
         onClick={() => onDelete(employee.id)}
-        className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded hidden group-hover:block"
+        className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded transition transform ease-in-out invisible group-hover:visible"
       >
         Delete
       </button>

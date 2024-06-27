@@ -64,4 +64,3 @@ jsonData.data.totalPages = Math.ceil(jsonData.data.totalItems / 10);
 // Ghi lại dữ liệu vào file JSON
 fs.writeFileSync(path, JSON.stringify(jsonData, null, 2));
 
-console.log("Data has been updated successfully!");

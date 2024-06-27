@@ -14,7 +14,7 @@ export default async function DashboardLayout({
 }) {
 
   return (
-    <div className="h-full relative">
+    <div className="flex justify-center items-center h-full">
       {children}
     </div>
   );

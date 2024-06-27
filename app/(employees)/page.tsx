@@ -1,16 +1,14 @@
 "use client";
-import React, { useState, useEffect, Suspense, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   fetchEmployees,
   fetchPositionResources,
-  deleteEmployeeById
+  deleteEmployeeById,
 } from "@/lib/features/employees/employeeSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
-import InfiniteScroll from "react-infinite-scroll-component";
 import SearchBar from "@/components/SearchBar";
 import EmployeeCard from "@/components/EmployeeCard";
-import { v4 as uuidv4 } from "uuid";
 import Link from "next/link";
 import { useInView } from "react-intersection-observer";
 import SkeletonCard from "@/components/GridCardsSkeleton";
@@ -67,14 +65,14 @@ export default function EmployeeList() {
     }
   }, [isInView, hasMore, fetchMoreEmployees]);
 
-  const getPositionName = (positionResourceId: number) => {
+  const getPositionName = (positionResourceId: string) => {
     const position = positionResources.find(
       (res) => res.positionResourceId === positionResourceId
     );
     return position ? position.name : "";
   };
 
-  const getToolLanguageName = (toolLanguageResourceId: number): string => {
+  const getToolLanguageName = (toolLanguageResourceId: string): string => {
     for (const position of positionResources) {
       const tool = position.toolLanguageResources.find(
         (res) => res.toolLanguageResourceId === toolLanguageResourceId
@@ -100,19 +98,15 @@ export default function EmployeeList() {
 
   const handleDelete = (id: string) => {
     // Implement delete logic
-    dispatch(deleteEmployeeById(id))
+    dispatch(deleteEmployeeById(id));
   };
-
-  //   if (loading === "pending") {
-  //     return <div>Loading...</div>;
-  //   }
 
   if (error) {
     return <div>Error: {error}</div>;
   }
 
   return (
-    <div className="p-4">
+    <div className="w-full p-12">
       <h1 className="text-2xl font-bold">List employees</h1>
       <div className="md:flex justify-between items-start mb-4 mt-4">
         <div className="flex space-x-2 mb-4">
@@ -129,29 +123,27 @@ export default function EmployeeList() {
           Add employee
         </Link>
       </div>
-      <Suspense fallback={<SkeletonCard />}>
-        {loading === "pending" ? (
-          <SkeletonCard />
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {employees.map((employee) => (
-              <EmployeeCard
-                key={uuidv4()}
-                employee={employee}
-                getPositionName={getPositionName}
-                getToolLanguageName={getToolLanguageName}
-                onDelete={handleDelete}
-              />
-            ))}
-          </div>
-        )}
-
-        <div className="...">
-          {(hasMore && <div ref={scrollTrigger}>Loading...</div>) || (
-            <p className="...">No more posts to load</p>
-          )}
+      {loading === 'pending' ? (
+        <SkeletonCard />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-8">
+          {employees.map((employee) => (
+            <EmployeeCard
+              key={employee.id}
+              employee={employee}
+              getPositionName={getPositionName}
+              getToolLanguageName={getToolLanguageName}
+              onDelete={handleDelete}
+            />
+          ))}
         </div>
-      </Suspense>
+      )}
+
+      <div className="...">
+        {(hasMore && <div ref={scrollTrigger}>Loading...</div>) || (
+          <p className="...">No more posts to load</p>
+        )}
+      </div>
     </div>
   );
 }
