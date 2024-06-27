@@ -77,12 +77,8 @@ export const fetchEmployees = createAsyncThunk(
   "employees/fetchEmployees",
   async (params: FetchEmployeesParams, { getState }) => {
     const { search, pageNumber, pageSize, append } = params;
-    try {
-      const response = await getEmployees(search, pageNumber, pageSize);
-      return { response, append };
-    } catch (error) {
-      throw Error("Failed to fetch employees");
-    }
+    const response = await getEmployees(search, pageNumber, pageSize);
+    return { response, append };
   }
 );
 
@@ -123,12 +119,8 @@ export const createEmployee = createAsyncThunk(
     "employees/createEmployee",
     async (params: CreateEmployeeParams, { getState }) => {
       const { name, positions } = params;
-      try {
-        const response = await createEmployeeApi(positions, name);
-        return { response };
-      } catch (error) {
-        throw Error("Failed to fetch employees");
-      }
+      const response = await createEmployeeApi(positions, name);
+      return { response };
     }
   );
 
