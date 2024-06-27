@@ -150,6 +150,7 @@ const FieldArrayImages: React.FC<FieldArrayImagesProps> = ({
                     src={imagesPreview[index]}
                     alt="Image"
                     className="object-fit rounded-2xl"
+                    priority
                   />
                   <XCircleIcon
                     onClick={() => removeImage(index)}

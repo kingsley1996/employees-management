@@ -21,7 +21,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, setSearchTerm, handle
         value={searchTerm}
         onKeyDown={handleKeyPress}
         onChange={(e) => setSearchTerm(e.target.value)}
-        className="border rounded px-2 py-1"
+        className="w-80 border rounded px-2 py-1"
       />
       <button onClick={handleSearch} className="bg-blue-500 text-white px-4 py-2 rounded">Search</button>
     </>

@@ -1,13 +1,10 @@
 "use client";
-// src/components/EmployeeCard.tsx
 import React from "react";
-import Link from "next/link";
 import Image from "next/image";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import { useRouter } from "next/navigation";
 import { Employee } from "@/constants/employees";
-import { calculateYearExperience } from "@/utils/helps";
 
 interface EmployeeCardProps {
   employee: Employee;
@@ -16,20 +13,23 @@ interface EmployeeCardProps {
   onDelete: (id: string) => void;
 }
 
-const CustomRightArrow = ({ onClick, ...rest }) => {
-  const { onMove, state } = rest;
-
+const CustomRightArrow = ({ onClick }) => {
   const handleOnClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault(); // Ngăn chặn hành vi mặc định của nút
-    if (state && state.currentSlide !== undefined) {
-      onClick(); // Gọi lại hàm onClick của Carousel nếu cần
-    }
+    e.stopPropagation();
+    onClick();
   };
 
-  return <button onClick={handleOnClick}>
-    ABC
-  </button>;
+  return <button className="react-multiple-carousel__arrow react-multiple-carousel__arrow--right " onClick={handleOnClick}></button>;
 };
+
+const CustomLeftArrow = ({ onClick }) => {
+  const handleOnClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation(); 
+    onClick();
+  };
+
+  return <button className="react-multiple-carousel__arrow react-multiple-carousel__arrow--left" onClick={handleOnClick}></button>;
+}
 
 const EmployeeCard: React.FC<EmployeeCardProps> = ({
   employee,
@@ -73,10 +73,6 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
     onDelete(employee.id);
   };
 
-  const handleCarouselClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation();
-  };
-
   const calculateYearExperience = (employee: Employee) => {
     let totalYears = 0;
     const calculatedToolLanguages: { [key: string]: boolean } = {};
@@ -102,8 +98,10 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
       onClick={() => handleGoToEdit()}
       className="max-w-sm bg-white border shadow-sm rounded-xl relative group cursor-pointer transition duration-500"
     >
-      <div className="w-full" onClick={handleCarouselClick}>
+      <div className="w-full">
         <Carousel
+          customLeftArrow={<CustomLeftArrow onClick={() => {}} />}
+          customRightArrow={<CustomRightArrow onClick={() => {}} />}
           {...carouselConfig}
         >
           {allImages.map((image) => (

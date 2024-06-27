@@ -1,4 +1,3 @@
-import Link from 'next/navigation';
 import Image from 'next/image';
 import emptySvg from '@/public/empty.svg';
 

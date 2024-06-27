@@ -17,7 +17,6 @@ import { toast } from "react-toastify";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import { EmployeeFormSchema } from "../../create/page";
-import { notFound } from "next/navigation";
 import NotFound from "@/components/NotFoundEmployee";
 import Loading from "@/components/LoadingPage";
 
