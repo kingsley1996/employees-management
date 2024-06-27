@@ -20,3 +20,9 @@ export interface Image {
     cdnUrl?: string;
     displayOrder: number;
 }
+
+export interface Employee {
+    id: string;
+    name: string;
+    positions: Position[];
+}

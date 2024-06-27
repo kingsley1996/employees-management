@@ -35,6 +35,7 @@ interface EmployeesState {
   positionResources: PositionResource[];
   toolLanguageResources: ToolLanguageResource[];
   loading: "idle" | "pending" | "succeeded" | "failed";
+  loadingPositionResources: "idle" | "pending" | "succeeded" | "failed";
   loadingSubmit: "idle" | "pending" | "succeeded" | "failed";
   error: string | null;
   totalItems: number;
@@ -67,6 +68,7 @@ const initialState: EmployeesState = {
   totalItems: 0,
   totalPages: 1,
   loading: "idle",
+  loadingPositionResources: "idle",
   loadingSubmit: "idle",
   error: null,
 };
@@ -158,14 +160,14 @@ const employeeSlice = createSlice({
       })
 
       .addCase(fetchPositionResources.pending, (state) => {
-        state.loading = "pending";
+        state.loadingPositionResources = "pending";
       })
       .addCase(fetchPositionResources.fulfilled, (state, action) => {
-        state.loading = "succeeded";
+        state.loadingPositionResources = "succeeded";
         state.positionResources = action.payload.data;
       })
       .addCase(fetchPositionResources.rejected, (state, action) => {
-        state.loading = "failed";
+        state.loadingPositionResources = "failed";
         state.error = action.error.message || null;
       })
 

@@ -5,35 +5,9 @@ import Link from "next/link";
 import Image from "next/image";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
-
-interface Image {
-  id: string;
-  cdnUrl: string;
-  displayOrder: number;
-}
-
-interface ToolLanguage {
-  id: string;
-  toolLanguageResourceId: string;
-  displayOrder: number;
-  from: number;
-  to: number;
-  description: string;
-  images: Image[];
-}
-
-interface Position {
-  id: string;
-  positionResourceId: string;
-  displayOrder: number;
-  toolLanguages: ToolLanguage[];
-}
-
-interface Employee {
-  id: string;
-  name: string;
-  positions: Position[];
-}
+import { useRouter } from "next/navigation";
+import { Employee } from "@/constants/employees";
+import { calculateYearExperience } from "@/utils/helps";
 
 interface EmployeeCardProps {
   employee: Employee;
@@ -42,16 +16,31 @@ interface EmployeeCardProps {
   onDelete: (id: string) => void;
 }
 
+const CustomRightArrow = ({ onClick, ...rest }) => {
+  const { onMove, state } = rest;
+
+  const handleOnClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault(); // Ngăn chặn hành vi mặc định của nút
+    if (state && state.currentSlide !== undefined) {
+      onClick(); // Gọi lại hàm onClick của Carousel nếu cần
+    }
+  };
+
+  return <button onClick={handleOnClick}>
+    ABC
+  </button>;
+};
+
 const EmployeeCard: React.FC<EmployeeCardProps> = ({
   employee,
   getPositionName,
   getToolLanguageName,
   onDelete,
 }) => {
-  // Gather all images from all positions and toolLanguages
-  const allImages = employee.positions.flatMap((position) =>
-    position.toolLanguages.flatMap((tool) => tool.images)
-  )
+  const router = useRouter();
+  const allImages = employee?.positions?.flatMap((position) =>
+    position?.toolLanguages?.flatMap((tool) => tool.images)
+  );
   // Configuration for carousel
   const carouselConfig = {
     responsive: {
@@ -74,13 +63,49 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
     draggable: true,
     centerMode: false,
   };
+
+  const handleGoToEdit = () => {
+    router.push(`/edit/${employee.id}`);
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    onDelete(employee.id);
+  };
+
+  const handleCarouselClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+  };
+
+  const calculateYearExperience = (employee: Employee) => {
+    let totalYears = 0;
+    const calculatedToolLanguages: { [key: string]: boolean } = {};
+
+    employee?.positions?.forEach((position) => {
+      position?.toolLanguages?.forEach((tool) => {
+        if (!calculatedToolLanguages[tool.toolLanguageResourceId]) {
+          totalYears += tool.to - tool.from;
+          calculatedToolLanguages[tool.toolLanguageResourceId] = true;
+        }
+      });
+    });
+
+    return `${totalYears} year${totalYears !== 1 ? "s" : ""}`;
+  };
+
+  const totalExperience = calculateYearExperience(employee);
+  const firstPosition = employee?.positions[0];
+  const firstToolLanguage = firstPosition?.toolLanguages[0];
+
   return (
-    <div className="border rounded-md shadow-md p-4 my-2 relative group cursor-pointer transition duration-500 hover:scale-105">
-      <Link href={`/edit/${employee.id}`}>
-        <h3 className="font-bold text-xl">{employee.name}</h3>
-      </Link>
-      <div className="mt-4">
-        <Carousel {...carouselConfig}>
+    <div
+      onClick={() => handleGoToEdit()}
+      className="max-w-sm bg-white border shadow-sm rounded-xl relative group cursor-pointer transition duration-500"
+    >
+      <div className="w-full" onClick={handleCarouselClick}>
+        <Carousel
+          {...carouselConfig}
+        >
           {allImages.map((image) => (
             <Image
               key={image.id}
@@ -88,35 +113,42 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
               height={200}
               src={image.cdnUrl}
               alt="Tool/language"
-              className="object-cover w-full h-72"
+              className="rounded-t-lg object-cover w-full h-[220px]"
+              priority
             />
           ))}
         </Carousel>
       </div>
-      <div>
-        {employee.positions.map((position) => (
-          <div key={position.id} className="my-2">
-            <p className="font-semibold">
-              {getPositionName(position.positionResourceId)}
-            </p>
-            <div className="pl-4">
-              {position.toolLanguages.map((tool) => (
-                <div key={tool.id} className="mb-2">
-                  <p>{getToolLanguageName(tool.toolLanguageResourceId)}</p>
-                  <p>
-                    {tool.from} - {tool.to}
+      <div className="p-4 md:p-5">
+        <div className="flex justify-between">
+          <h3 className="font-bold text-lg text-blue-400">{employee.name}</h3>
+          <div className="font-semibold">{totalExperience}</div>
+        </div>
+        <div>
+          {firstPosition && (
+            <div className="my-2">
+              <p className="truncate break-words font-semibold">
+                {getPositionName(firstPosition.positionResourceId)}
+              </p>
+              {firstToolLanguage && (
+                <div className="pl-4">
+                  <p className="mb-4">
+                    {getToolLanguageName(
+                      firstToolLanguage.toolLanguageResourceId
+                    )}
                   </p>
-                  <pre className="truncate whitespace-pre-wrap break-words">{tool.description}</pre>
-                  <div className="carousel space-x-2"></div>
+                  <pre className="font-sans truncate break-words text-gray-400">
+                    {firstToolLanguage.description}
+                  </pre>
                 </div>
-              ))}
+              )}
             </div>
-          </div>
-        ))}
+          )}
+        </div>
       </div>
       <button
-        onClick={() => onDelete(employee.id)}
-        className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded transition transform ease-in-out invisible group-hover:visible"
+        onClick={handleDeleteClick}
+        className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 "
       >
         Delete
       </button>

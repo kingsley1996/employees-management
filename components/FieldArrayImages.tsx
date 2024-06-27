@@ -99,7 +99,6 @@ const FieldArrayImages: React.FC<FieldArrayImagesProps> = ({
     e: React.ChangeEvent<HTMLInputElement>,
     index: number
   ) => {
-    console.log("index: ", index);
     if (e.target.files && e.target.files.length > 0) {
       handleImageUpload(e.target.files[0], index);
     }
@@ -116,6 +115,8 @@ const FieldArrayImages: React.FC<FieldArrayImagesProps> = ({
         newImagesPreview[i] = item.cdnUrl || "";
       });
       setImagesPreview(newImagesPreview);
+    } else {
+      toast.error("Must have at least 1 photo!")
     }
   };
 
@@ -128,7 +129,7 @@ const FieldArrayImages: React.FC<FieldArrayImagesProps> = ({
   };
 
   return (
-    <div>
+    <div className="ml-5">
       <label className="block text-gray-700 text-sm font-bold mb-2">
         Images
       </label>
@@ -148,7 +149,7 @@ const FieldArrayImages: React.FC<FieldArrayImagesProps> = ({
                     style={{ height: "184px", width: "240px" }}
                     src={imagesPreview[index]}
                     alt="Image"
-                    className="object-cover"
+                    className="object-fit rounded-2xl"
                   />
                   <XCircleIcon
                     onClick={() => removeImage(index)}
@@ -214,7 +215,7 @@ const FieldArrayImages: React.FC<FieldArrayImagesProps> = ({
       <button
         type="button"
         onClick={() => appendImage()}
-        className="bg-blue-500 hover:bg-blue-700 text-white p-2 rounded focus:outline-none focus:shadow-outline"
+        className="bg-slate-50 hover:bg-slate-100 border border-green-500 text-green-400 font-bold p-2 rounded focus:outline-none focus:shadow-outline"
       >
         Add Image
       </button>

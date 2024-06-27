@@ -111,16 +111,12 @@ export async function PUT(
       return new NextResponse("Employee not found", { status: 404 });
     }
 
-    console.log('body: ', body);
-
     // Update employee with new data from request body
     employees[index] = {
       ...employees[index],
       ...body,
     };
     
-    console.log('employees: ', employees[index]);
-
     // Save updated data back to JSON file
     writeJsonFile(employeesFilePath, employeesData);
 

@@ -11,10 +11,10 @@ import { FieldArrayToolLanguages } from "./FieldArrayToolLanguages";
 export function FieldArrayPositions({ isEdit = false }: { isEdit?: boolean }) {
   const dispatch = useAppDispatch();
   const [positionsActive, setPositionsActive] = useState<any>({});
-  const { positionResources, editEmployee } = useAppSelector(
+  const { positionResources, editEmployee, loadingPositionResources } = useAppSelector(
     (state: RootState) => state.employees
   );
-  
+
   const {
     register,
     control,
@@ -37,10 +37,10 @@ export function FieldArrayPositions({ isEdit = false }: { isEdit?: boolean }) {
   }, [isEdit, editEmployee]);
 
   useEffect(() => {
-    if (positionResources.length === 0) {
+    if (positionResources.length === 0 && loadingPositionResources === 'idle') {
       dispatch(fetchPositionResources());
     }
-  }, [dispatch, positionResources]);
+  }, [positionResources, loadingPositionResources, dispatch]);
 
   const handleSelectChange = (index: number, value: string) => {
     setValue(`positions.${index}.positionResourceId`, value);
@@ -59,7 +59,7 @@ export function FieldArrayPositions({ isEdit = false }: { isEdit?: boolean }) {
               Positions
             </label>
             <div className="mt-2">
-              <div className="flex justify-between mb-4">
+              <div className="md:flex justify-between mb-4">
                 <select
                   {...register(`positions.${index}.positionResourceId`)}
                   className="w-full mt-1 block px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200"
@@ -76,10 +76,10 @@ export function FieldArrayPositions({ isEdit = false }: { isEdit?: boolean }) {
                 </select>
                 {fields.length > 1 && (
                   <button
-                    className="ml-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline"
+                    className="mt-4 md:mt-0 w-52 ml-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline"
                     onClick={() => (fields.length > 1 ? remove(index) : null)}
                   >
-                    Delete
+                    Delete Position
                   </button>
                 )}
               </div>
@@ -101,6 +101,13 @@ export function FieldArrayPositions({ isEdit = false }: { isEdit?: boolean }) {
         );
       })}
       <div>
+        {errors?.positions?.at(errors.positions.length - 1)?.message && (
+          <p className="text-red-500 text-xs italic mt-4">
+            {errors?.positions?.at(errors.positions.length - 1)?.message}
+          </p>
+        )}
+      </div>
+      <div>
         <button
           type="button"
           onClick={() =>
@@ -119,7 +126,7 @@ export function FieldArrayPositions({ isEdit = false }: { isEdit?: boolean }) {
               ],
             })
           }
-          className="mb-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          className="mb-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
         >
           Add Position
         </button>

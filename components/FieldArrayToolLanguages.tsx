@@ -7,15 +7,18 @@ import { RootState } from "@/lib/store";
 import { ICreateEmployeeForm } from "../app/(employees)/create/page";
 import { ToolLanguageResource } from "@/lib/features/employees/employeeSlice";
 import FieldArrayImages from "./FieldArrayImages";
+import { toast } from "react-toastify";
 
 export function FieldArrayToolLanguages({
   positionIndex,
-  positionResourceId
+  positionResourceId,
 }: {
   positionIndex: number;
   positionResourceId: string;
 }) {
-  const [toolLanguages, setToolLanguages] = useState<ToolLanguageResource[]>([]);
+  const [toolLanguages, setToolLanguages] = useState<ToolLanguageResource[]>(
+    []
+  );
   const { positionResources } = useAppSelector(
     (state: RootState) => state.employees
   );
@@ -32,13 +35,21 @@ export function FieldArrayToolLanguages({
 
   useEffect(() => {
     if (positionResourceId && positionResources.length > 0) {
-        const currentPositionResources = positionResources.filter(item => item.positionResourceId === positionResourceId)[0];
-        const toolLanguages = [...currentPositionResources.toolLanguageResources];
-        setToolLanguages(toolLanguages);
+      const currentPositionResources = positionResources.filter(
+        (item) => item.positionResourceId === positionResourceId
+      )[0];
+      const toolLanguages = [...currentPositionResources.toolLanguageResources];
+      setToolLanguages(toolLanguages);
     }
-   
-
   }, [positionResources, positionResourceId]);
+
+  const removeToolLanguage = (index: number) => {
+    if (fields.length > 1) {
+      remove(index);
+    } else {
+      toast.error("Must have at least 1 tool/language");
+    }
+  };
 
   return (
     <React.Fragment>
@@ -50,14 +61,12 @@ export function FieldArrayToolLanguages({
                 <label className="block text-gray-700 text-md font-bold mb-2">
                   Tool/Language
                 </label>
-                {fields.length > 1 && (
-                  <button
-                    className="ml-4 mb-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline"
-                    onClick={() => (fields.length > 1 ? remove(index) : null)}
-                  >
-                    Delete
-                  </button>
-                )}
+                <button
+                  className="ml-4 mb-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline"
+                  onClick={() => removeToolLanguage(index)}
+                >
+                  Delete Tool
+                </button>
               </div>
 
               <div className="relative md:flex gap-4">
@@ -72,17 +81,18 @@ export function FieldArrayToolLanguages({
                       Select Option
                     </option>
                     {toolLanguages?.length > 0 &&
-                    toolLanguages.map((item: any) => (
-                      <option
-                        value={item?.toolLanguageResourceId}
-                        key={`${item?.toolLanguageResourceId}-${item?.name}`}
-                      >
-                        {item?.name}
-                      </option>
-                    ))}
+                      toolLanguages.map((item: any) => (
+                        <option
+                          value={item?.toolLanguageResourceId}
+                          key={`${item?.toolLanguageResourceId}-${item?.name}`}
+                        >
+                          {item?.name}
+                        </option>
+                      ))}
                   </select>
-                  {errors?.positions?.at(positionIndex)?.toolLanguages?.at(index)
-                    ?.toolLanguageResourceId && (
+                  {errors?.positions
+                    ?.at(positionIndex)
+                    ?.toolLanguages?.at(index)?.toolLanguageResourceId && (
                     <p className="text-red-500 text-xs italic mt-4">
                       {
                         errors?.positions
@@ -115,8 +125,9 @@ export function FieldArrayToolLanguages({
                       )
                     )}
                   </select>
-                  {errors?.positions?.at(positionIndex)?.toolLanguages?.at(index)
-                    ?.from && (
+                  {errors?.positions
+                    ?.at(positionIndex)
+                    ?.toolLanguages?.at(index)?.from && (
                     <p className="text-red-500 text-xs italic mt-4">
                       {
                         errors?.positions
@@ -148,8 +159,9 @@ export function FieldArrayToolLanguages({
                       )
                     )}
                   </select>
-                  {errors?.positions?.at(positionIndex)?.toolLanguages?.at(index)
-                    ?.to && (
+                  {errors?.positions
+                    ?.at(positionIndex)
+                    ?.toolLanguages?.at(index)?.to && (
                     <p className="text-red-500 text-xs italic mt-4">
                       {
                         errors?.positions
@@ -168,20 +180,25 @@ export function FieldArrayToolLanguages({
                   placeholder="Description"
                   className="w-full mt-1 block px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200"
                 />
-                {isSubmitted && errors?.positions?.at(positionIndex)?.toolLanguages?.at(index)
-                  ?.description && (
-                  <p className="text-red-500 text-xs italic mt-4">
-                    {
-                      errors?.positions
-                        ?.at(positionIndex)
-                        ?.toolLanguages?.at(index)?.description?.message
-                    }
-                  </p>
-                )}
+                {isSubmitted &&
+                  errors?.positions?.at(positionIndex)?.toolLanguages?.at(index)
+                    ?.description && (
+                    <p className="text-red-500 text-xs italic mt-4">
+                      {
+                        errors?.positions
+                          ?.at(positionIndex)
+                          ?.toolLanguages?.at(index)?.description?.message
+                      }
+                    </p>
+                  )}
               </div>
               <div className="mb-4">
-              <FieldArrayImages isEdit={true} positionIndex={positionIndex} toolIndex={index} />
-            </div>
+                <FieldArrayImages
+                  isEdit={true}
+                  positionIndex={positionIndex}
+                  toolIndex={index}
+                />
+              </div>
             </React.Fragment>
           );
         })}
@@ -192,13 +209,13 @@ export function FieldArrayToolLanguages({
               append({
                 id: uuid4(),
                 toolLanguageResourceId: "",
-                from: '2023',
-                to: '2024',
+                from: "2023",
+                to: "2024",
                 description: "",
                 images: [{ id: uuid4(), cdnUrl: "" }],
               })
             }
-            className="mt-4 mb-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            className="mt-4 mb-4 bg-slate-50 hover:bg-slate-100 border border-blue-500 text-blue-400 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           >
             Add Tool/Language
           </button>

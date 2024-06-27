@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   fetchEmployees,
   fetchPositionResources,
@@ -10,8 +10,10 @@ import { RootState } from "@/lib/store";
 import SearchBar from "@/components/SearchBar";
 import EmployeeCard from "@/components/EmployeeCard";
 import Link from "next/link";
-import { useInView } from "react-intersection-observer";
 import SkeletonCard from "@/components/GridCardsSkeleton";
+import EmptyEmployeeList from "@/components/EmptyEmployeeList";
+import { sortEmployeesByExperience } from "@/utils/helps";
+import { toast } from "react-toastify";
 
 const PAGE_SIZE = 10;
 
@@ -23,8 +25,7 @@ export default function EmployeeList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [pageNumber, setPageNumber] = useState(1);
   const [isMounted, setIsMounted] = useState(false);
-  const hasMore = pageNumber < totalPages;
-  const [scrollTrigger, isInView] = useInView();
+  const [hasMore, setHasMore] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -32,6 +33,14 @@ export default function EmployeeList() {
       setIsMounted(false);
     };
   }, []);
+
+  useEffect(() => {
+    if (pageNumber < totalPages) {
+      setHasMore(true);
+    } else {
+      setHasMore(false);
+    }
+  }, [pageNumber, totalPages]);
 
   useEffect(() => {
     if (isMounted) {
@@ -47,23 +56,47 @@ export default function EmployeeList() {
     }
   }, [dispatch, isMounted]);
 
-  const fetchMoreEmployees = useCallback(() => {
-    dispatch(
-      fetchEmployees({
-        search: searchTerm,
-        pageNumber: pageNumber + 1,
-        pageSize: PAGE_SIZE,
-        append: true,
-      })
-    );
-    setPageNumber((prevPageNumber) => prevPageNumber + 1);
-  }, [dispatch, pageNumber, searchTerm]);
+  const observerTarget = useRef(null);
 
   useEffect(() => {
-    if (isInView && hasMore) {
-      fetchMoreEmployees();
+    if (pageNumber > 1 && hasMore) {
+      dispatch(
+        fetchEmployees({
+          search: searchTerm,
+          pageNumber: pageNumber,
+          pageSize: PAGE_SIZE,
+          append: true,
+        })
+      );
     }
-  }, [isInView, hasMore, fetchMoreEmployees]);
+  }, [pageNumber, hasMore]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          reachedBottomList();
+        }
+      },
+      { threshold: 1 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
+      }
+    };
+  }, [observerTarget, hasMore]);
+
+  const reachedBottomList = () => {
+    setPageNumber((prevState) => {
+      return prevState + 1;
+    });
+  };
 
   const getPositionName = (positionResourceId: string) => {
     const position = positionResources.find(
@@ -85,7 +118,7 @@ export default function EmployeeList() {
   };
 
   const handleSearch = () => {
-    setPageNumber(1); // Reset page number to 1 when searching
+    setPageNumber(1);
     dispatch(
       fetchEmployees({
         search: searchTerm,
@@ -96,13 +129,20 @@ export default function EmployeeList() {
     );
   };
 
-  const handleDelete = (id: string) => {
-    dispatch(deleteEmployeeById(id));
+  const handleDelete = async (id: string) => {
+    try {
+      await dispatch(deleteEmployeeById(id));
+      toast.success("Deleted employee");
+    } catch (error) {
+      toast.error("Failed to delete employee!");
+    }
   };
 
   if (error) {
     return <div>Error: {error}</div>;
   }
+
+  const sortedEmployees = sortEmployeesByExperience(employees);
 
   return (
     <div className="w-full p-12">
@@ -122,11 +162,14 @@ export default function EmployeeList() {
           Add employee
         </Link>
       </div>
-      {loading === 'pending' ? (
+      {loading === "pending" || loading === "idle" ? (
         <SkeletonCard />
+      ) : sortedEmployees.length === 0 ? (
+        <EmptyEmployeeList />
       ) : (
+        // <p className="text-gray-500">No employees found.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-8">
-          {employees.map((employee) => (
+          {sortedEmployees.map((employee) => (
             <EmployeeCard
               key={employee.id}
               employee={employee}
@@ -137,12 +180,7 @@ export default function EmployeeList() {
           ))}
         </div>
       )}
-
-      <div className="...">
-        {(hasMore && <div ref={scrollTrigger}>Loading...</div>) || (
-          <p className="...">No more posts to load</p>
-        )}
-      </div>
+      <div ref={observerTarget}></div>
     </div>
   );
 }

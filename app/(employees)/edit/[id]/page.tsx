@@ -1,7 +1,8 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import {
+  deleteEmployeeById,
   getEmployeeById,
   updateEmployeeById,
 } from "@/lib/features/employees/employeeSlice";
@@ -16,7 +17,9 @@ import { toast } from "react-toastify";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import { EmployeeFormSchema } from "../../create/page";
-import FormSkeleton from "@/components/FormSkeleton";
+import { notFound } from "next/navigation";
+import NotFound from "@/components/NotFoundEmployee";
+import Loading from "@/components/LoadingPage";
 
 export type IEditEmployeeForm = z.infer<typeof EmployeeFormSchema>;
 
@@ -45,10 +48,10 @@ export default function CreateEmployeeForm() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
   const { id } = params;
+  const [notFound, setNotFound] = useState(false);
 
-  const { loading, loadingSubmit, editEmployee } = useAppSelector(
-    (state: RootState) => state.employees
-  );
+  const { loading, loadingPositionResources, loadingSubmit, editEmployee } =
+    useAppSelector((state: RootState) => state.employees);
 
   const methods = useForm<IEditEmployeeForm>({
     defaultValues: defaultValues,
@@ -63,9 +66,19 @@ export default function CreateEmployeeForm() {
   } = methods;
 
   useEffect(() => {
-    if (id) {
-      dispatch(getEmployeeById(id));
-    }
+    const fetchEmployee = async () => {
+      if (id) {
+        try {
+          const result = await dispatch(getEmployeeById(id));
+          if (!result.payload) {
+            setNotFound(true);
+          }
+        } catch (error) {
+          setNotFound(true);
+        }
+      }
+    };
+    fetchEmployee();
   }, [id, dispatch]);
 
   useEffect(() => {
@@ -92,6 +105,36 @@ export default function CreateEmployeeForm() {
     console.log("errors: ", e);
   };
 
+  const handleCancelEdit = () => {
+    router.push("/");
+  };
+
+  const handleDelete = async () => {
+    if (id) {
+      try {
+        await dispatch(deleteEmployeeById(id));
+        toast.success("Deleted employee");
+        setTimeout(() => {
+          router.push("/");
+        }, 300);
+      } catch (error) {
+        toast.error("Failed to delete employee!");
+      }
+    }
+  };
+
+  if (
+    loading === "pending" ||
+    loading === "idle" ||
+    loadingPositionResources === "pending"
+  ) {
+    return <Loading />;
+  }
+
+  if (notFound) {
+    return <NotFound />;
+  }
+
   return (
     <div className="w-full md:w-2/3 p-8 md:p-12">
       <div className="flex items-center mb-8">
@@ -111,6 +154,7 @@ export default function CreateEmployeeForm() {
               </label>
               <input
                 {...register("name")}
+                placeholder="Employee name"
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4"
               />
               {errors.name && (
@@ -122,13 +166,31 @@ export default function CreateEmployeeForm() {
             <div className="mb-4">
               <FieldArrayPositions isEdit={true} />
             </div>
-            <button
-              type="submit"
-              disabled={loadingSubmit === "pending"}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            >
-              Submit
-            </button>
+            <div className="flex items-center justify-between">
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              >
+                Delete
+              </button>
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  className="bg-gray-200 hover:bg-gray-300 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={loadingSubmit === "pending"}
+                  className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
           </form>
         </FormProvider>
       </div>

@@ -48,7 +48,7 @@ export const EmployeeFormSchema = z.object({
                   return parseInt(schema.from) < parseInt(schema.to);
                 },
                 {
-                  message: "The year from must be greater than the year to",
+                  message: "The year to must be greater than the year from",
                   path: ["to"],
                 }
               )
@@ -132,6 +132,7 @@ export default function CreateEmployeeForm() {
                 Name
               </label>
               <input
+                placeholder="Employee name"
                 {...register("name")}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4"
               />
@@ -147,7 +148,7 @@ export default function CreateEmployeeForm() {
             <button
               type="submit"
               disabled={loading === "pending"}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             >
               Submit
             </button>

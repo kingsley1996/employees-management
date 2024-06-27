@@ -34,7 +34,6 @@ export const deleteEmployee = async (id: string) => {
 };
 
 export const getEmployeeByIdApi = async (id: string) => {
-  debugger;
   const api = createApi();
   const response = await api.get(`/api/employees/${id}`);
   return response.data;
