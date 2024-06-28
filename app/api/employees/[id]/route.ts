@@ -1,5 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import prisma from "@/lib/prismadb";
+import { Prisma } from "@prisma/client";
 
 export async function GET(
   req: NextRequest,
@@ -50,41 +51,48 @@ export async function DELETE(
       });
     }
 
-    await prisma.$transaction(async (prisma) => {
-      // Delete all images related to the employee's tool languages
-      await prisma.image.deleteMany({
-        where: {
-          toolLanguage: {
+    await prisma.$transaction(
+      async (prisma) => {
+        // Delete all images related to the employee's tool languages
+        await prisma.image.deleteMany({
+          where: {
+            toolLanguage: {
+              position: {
+                employeeId: params.id as string as string,
+              },
+            },
+          },
+        });
+
+        // Delete all tool languages related to the employee's positions
+        await prisma.toolLanguage.deleteMany({
+          where: {
             position: {
               employeeId: params.id as string as string,
             },
           },
-        },
-      });
+        });
 
-      // Delete all tool languages related to the employee's positions
-      await prisma.toolLanguage.deleteMany({
-        where: {
-          position: {
+        // Delete all positions related to the employee
+        await prisma.position.deleteMany({
+          where: {
             employeeId: params.id as string as string,
           },
-        },
-      });
+        });
 
-      // Delete all positions related to the employee
-      await prisma.position.deleteMany({
-        where: {
-          employeeId: params.id as string as string,
-        },
-      });
-
-      // Finally, delete the employee
-      await prisma.employee.delete({
-        where: {
-          id: params.id as string as string,
-        },
-      });
-    });
+        // Finally, delete the employee
+        await prisma.employee.delete({
+          where: {
+            id: params.id as string as string,
+          },
+        });
+      },
+      {
+        maxWait: 5000, // default: 2000
+        timeout: 10000, // default: 5000
+        isolationLevel: Prisma.TransactionIsolationLevel.Serializable, // optional, default defined by database configuration
+      }
+    );
 
     return new NextResponse(
       JSON.stringify({
@@ -113,64 +121,71 @@ export async function PUT(
 
     let updatedEmployee = null;
 
-    await prisma.$transaction(async (prisma) => {
-      // Delete existing positions, tool languages, and images for the employee
-      await prisma.image.deleteMany({
-        where: {
-          toolLanguage: { position: { employeeId: params.id as string } },
-        },
-      });
-      await prisma.toolLanguage.deleteMany({
-        where: { position: { employeeId: params.id as string } },
-      });
-      await prisma.position.deleteMany({
-        where: { employeeId: params.id as string },
-      });
-
-      // Update the employee and create new positions, tool languages, and images
-      updatedEmployee = await prisma.employee.update({
-        where: { id: params.id as string },
-        data: {
-          name,
-          positions: {
-            create: positions.map((position: any) => ({
-              id: position.id,
-              positionResourceId: position.positionResourceId,
-              toolLanguages: {
-                create: position.toolLanguages.map((toolLanguage: any) => ({
-                  id: toolLanguage.id,
-                  toolLanguageResourceId: toolLanguage.toolLanguageResourceId,
-                  from: toolLanguage.from,
-                  to: toolLanguage.to,
-                  description: toolLanguage.description,
-                  images: {
-                    create: toolLanguage.images.map((image: any) => ({
-                      id: image.id,
-                      cdnUrl: image.cdnUrl,
-                    })),
-                  },
-                })),
-              },
-            })),
+    await prisma.$transaction(
+      async (prisma) => {
+        // Delete existing positions, tool languages, and images for the employee
+        await prisma.image.deleteMany({
+          where: {
+            toolLanguage: { position: { employeeId: params.id as string } },
           },
-        },
-        include: {
-          positions: {
-            include: {
-              toolLanguages: {
-                include: {
-                  images: true,
+        });
+        await prisma.toolLanguage.deleteMany({
+          where: { position: { employeeId: params.id as string } },
+        });
+        await prisma.position.deleteMany({
+          where: { employeeId: params.id as string },
+        });
+
+        // Update the employee and create new positions, tool languages, and images
+        updatedEmployee = await prisma.employee.update({
+          where: { id: params.id as string },
+          data: {
+            name,
+            positions: {
+              create: positions.map((position: any) => ({
+                id: position.id,
+                positionResourceId: position.positionResourceId,
+                toolLanguages: {
+                  create: position.toolLanguages.map((toolLanguage: any) => ({
+                    id: toolLanguage.id,
+                    toolLanguageResourceId: toolLanguage.toolLanguageResourceId,
+                    from: toolLanguage.from,
+                    to: toolLanguage.to,
+                    description: toolLanguage.description,
+                    images: {
+                      create: toolLanguage.images.map((image: any) => ({
+                        id: image.id,
+                        cdnUrl: image.cdnUrl,
+                      })),
+                    },
+                  })),
+                },
+              })),
+            },
+          },
+          include: {
+            positions: {
+              include: {
+                toolLanguages: {
+                  include: {
+                    images: true,
+                  },
                 },
               },
             },
           },
-        },
-      });
-    });
+        });
+      },
+      {
+        maxWait: 5000, // default: 2000
+        timeout: 10000, // default: 5000
+        isolationLevel: Prisma.TransactionIsolationLevel.Serializable, // optional, default defined by database configuration
+      }
+    );
     return new NextResponse(
       JSON.stringify({
         message: "Employee updated successfully",
-        data: updatedEmployee
+        data: updatedEmployee,
       })
     );
   } catch (error) {
