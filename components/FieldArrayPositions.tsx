@@ -76,6 +76,7 @@ export function FieldArrayPositions({ isEdit = false }: { isEdit?: boolean }) {
                 </select>
                 {fields.length > 1 && (
                   <button
+                    type="button"
                     className="mt-4 md:mt-0 w-52 ml-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline"
                     onClick={() => (fields.length > 1 ? remove(index) : null)}
                   >
