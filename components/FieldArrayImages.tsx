@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ArrowUpTrayIcon, XCircleIcon } from "@heroicons/react/24/solid";
 import { toast } from "react-toastify";
 import { ICreateEmployeeForm } from "@/app/(employees)/create/page";
+import { useUploadImageContext } from '@/app/context/UploadImageContext';
 
 interface FieldArrayImagesProps {
   isEdit?: boolean;
@@ -28,6 +29,7 @@ const FieldArrayImages: React.FC<FieldArrayImagesProps> = ({
 }) => {
   const [imagesPreview, setImagesPreview] = useState<ImagePreview>({});
   const [loading, setLoading] = useState<LoadingState>({});
+  const { setIsUploading } = useUploadImageContext();
 
   const {
     control,
@@ -69,6 +71,7 @@ const FieldArrayImages: React.FC<FieldArrayImagesProps> = ({
     formData.append("upload_preset", "mvbygjsu");
 
     setLoading((prev) => ({ ...prev, [index]: true }));
+    setIsUploading(true);
 
     try {
       const response = await axios.post(
@@ -92,6 +95,7 @@ const FieldArrayImages: React.FC<FieldArrayImagesProps> = ({
       toast.error("Error uploading image!");
     } finally {
       setLoading((prev) => ({ ...prev, [index]: false }));
+      setIsUploading(false);
     }
   };
 

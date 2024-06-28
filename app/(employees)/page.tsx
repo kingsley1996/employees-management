@@ -132,6 +132,7 @@ export default function EmployeeList() {
   const handleDelete = async (id: string) => {
     try {
       await dispatch(deleteEmployeeById({id, triggerGetData: true}));
+      setPageNumber(1);
       toast.success("Deleted employee", {
         autoClose: 300
       });

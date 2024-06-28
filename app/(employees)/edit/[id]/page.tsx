@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import NotFound from "@/components/NotFoundEmployee";
 import Loading from "@/components/LoadingPage";
+import { useUploadImageContext } from "@/app/context/UploadImageContext";
 
 const EmployeeFormSchema = z.object({
   name: z.string().min(1, "Name is required!"),
@@ -93,6 +94,7 @@ export default function CreateEmployeeForm() {
   const params = useParams<{ id: string }>();
   const { id } = params;
   const [notFound, setNotFound] = useState(false);
+  const { isUploading } = useUploadImageContext();
 
   const {
     loading,
@@ -241,9 +243,9 @@ export default function CreateEmployeeForm() {
                 </button>
                 <button
                   type="submit"
-                  disabled={loadingSubmit === "pending"}
+                  disabled={loadingSubmit === "pending" || isUploading}
                   className={`bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
-                    loadingSubmit === "pending"
+                    (loadingSubmit === "pending" || isUploading)
                       ? "opacity-50 cursor-not-allowed"
                       : ""
                   }`}

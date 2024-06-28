@@ -5,6 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 import AlertMessage from "@/components/AlertMessage";
 import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
+import { UploadImageProvider } from "./context/UploadImageContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,7 +25,9 @@ export default function RootLayout({
         <body className={`${inter.className} bg-slate-50`}>
           <ToastContainer />
           <AlertMessage />
-          {children}
+          <UploadImageProvider>
+            {children}
+          </UploadImageProvider>
         </body>
       </html>
     </StoreProvider>

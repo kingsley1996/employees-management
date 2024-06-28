@@ -12,6 +12,7 @@ import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useUploadImageContext } from "@/app/context/UploadImageContext";
 
 const EmployeeFormSchema = z.object({
   name: z.string().min(1, "Name is required!"),
@@ -84,8 +85,9 @@ const defaultValues = {
 export default function CreateEmployeeForm() {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const { isUploading } = useUploadImageContext();
 
-  const { loading, loadingSubmit } = useAppSelector(
+  const { loadingSubmit } = useAppSelector(
     (state: RootState) => state.employees
   );
 
@@ -151,9 +153,9 @@ export default function CreateEmployeeForm() {
             </div>
             <button
               type="submit"
-              disabled={loadingSubmit === "pending"}
+              disabled={loadingSubmit === "pending" || isUploading}
               className={`bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
-                loadingSubmit === "pending"
+                (loadingSubmit === "pending" || isUploading)
                   ? "opacity-50 cursor-not-allowed"
                   : ""
               }`}
