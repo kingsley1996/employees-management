@@ -1,9 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-import path from "path";
-import { readJsonFile, writeJsonFile } from "@/utils";
-
-const employeesFilePath = path.join(process.cwd(), "tmp", "employees.json");
-const pageSize = 10; // Assuming pageSize is fixed at 10
+import prisma from "@/lib/prismadb";
 
 export async function GET(
   req: NextRequest,
@@ -15,14 +11,22 @@ export async function GET(
         status: 400,
       });
     }
-
-    const employeesData = readJsonFile(employeesFilePath);
-    const employees = employeesData.data.pageItems;
-
-    // Find employee by ID
-    const employee = employees.find(
-      (employee: any) => employee.id === params.id
-    );
+    const employee = await prisma.employee.findUnique({
+      where: {
+        id: params.id as string as string,
+      },
+      include: {
+        positions: {
+          include: {
+            toolLanguages: {
+              include: {
+                images: true,
+              },
+            },
+          },
+        },
+      },
+    });
 
     if (!employee) {
       return new NextResponse("Employee not found", { status: 404 });
@@ -45,44 +49,50 @@ export async function DELETE(
         status: 400,
       });
     }
-    const employeesData = readJsonFile(employeesFilePath);
-    let employees = employeesData.data.pageItems;
 
-    // Find index of employee to delete
-    const index = employees.findIndex(
-      (employee: any) => employee.id === params.id
-    );
+    await prisma.$transaction(async (prisma) => {
+      // Delete all images related to the employee's tool languages
+      await prisma.image.deleteMany({
+        where: {
+          toolLanguage: {
+            position: {
+              employeeId: params.id as string as string,
+            },
+          },
+        },
+      });
 
-    if (index === -1) {
-      return new NextResponse("Employee not found", { status: 404 });
-    }
+      // Delete all tool languages related to the employee's positions
+      await prisma.toolLanguage.deleteMany({
+        where: {
+          position: {
+            employeeId: params.id as string as string,
+          },
+        },
+      });
 
-    // Remove employee from array
-    employees.splice(index, 1);
+      // Delete all positions related to the employee
+      await prisma.position.deleteMany({
+        where: {
+          employeeId: params.id as string as string,
+        },
+      });
 
-    // Calculate totalItems and totalPages
-    const totalItems = employees.length;
-    const totalPages = Math.ceil(totalItems / pageSize);
-
-    // Update employeesData with new values
-    employeesData.data.totalItems = totalItems;
-    employeesData.data.totalPages = totalPages;
-    employeesData.data.pageItems = employees;
-
-    // Save updated data back to JSON file
-    writeJsonFile(employeesFilePath, employeesData);
+      // Finally, delete the employee
+      await prisma.employee.delete({
+        where: {
+          id: params.id as string as string,
+        },
+      });
+    });
 
     return new NextResponse(
       JSON.stringify({
-        data: {
-          totalItems: totalItems,
-          totalPages: totalPages,
-          pageItems: employees,
-        },
+        message: "Employee deleted successfully",
       })
     );
   } catch (error) {
-    console.error("[EMPLOYEES_ERROR]", error);
+    console.error("[DELETE_EMPLOYEE_ERROR]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
@@ -98,35 +108,73 @@ export async function PUT(
       });
     }
 
-    const employeesData = readJsonFile(employeesFilePath);
-    let employees = employeesData.data.pageItems;
     const body = await req.json();
+    const { name, positions } = body;
 
-    // Find index of employee to update
-    const index = employees.findIndex(
-      (employee: any) => employee.id === params.id
-    );
+    let updatedEmployee = null;
 
-    if (index === -1) {
-      return new NextResponse("Employee not found", { status: 404 });
-    }
+    await prisma.$transaction(async (prisma) => {
+      // Delete existing positions, tool languages, and images for the employee
+      await prisma.image.deleteMany({
+        where: {
+          toolLanguage: { position: { employeeId: params.id as string } },
+        },
+      });
+      await prisma.toolLanguage.deleteMany({
+        where: { position: { employeeId: params.id as string } },
+      });
+      await prisma.position.deleteMany({
+        where: { employeeId: params.id as string },
+      });
 
-    // Update employee with new data from request body
-    employees[index] = {
-      ...employees[index],
-      ...body,
-    };
-    
-    // Save updated data back to JSON file
-    writeJsonFile(employeesFilePath, employeesData);
-
+      // Update the employee and create new positions, tool languages, and images
+      updatedEmployee = await prisma.employee.update({
+        where: { id: params.id as string },
+        data: {
+          name,
+          positions: {
+            create: positions.map((position: any) => ({
+              id: position.id,
+              positionResourceId: position.positionResourceId,
+              toolLanguages: {
+                create: position.toolLanguages.map((toolLanguage: any) => ({
+                  id: toolLanguage.id,
+                  toolLanguageResourceId: toolLanguage.toolLanguageResourceId,
+                  from: toolLanguage.from,
+                  to: toolLanguage.to,
+                  description: toolLanguage.description,
+                  images: {
+                    create: toolLanguage.images.map((image: any) => ({
+                      id: image.id,
+                      cdnUrl: image.cdnUrl,
+                    })),
+                  },
+                })),
+              },
+            })),
+          },
+        },
+        include: {
+          positions: {
+            include: {
+              toolLanguages: {
+                include: {
+                  images: true,
+                },
+              },
+            },
+          },
+        },
+      });
+    });
     return new NextResponse(
       JSON.stringify({
-        data: employees[index],
+        message: "Employee updated successfully",
+        data: updatedEmployee
       })
     );
   } catch (error) {
-    console.error("[EMPLOYEES_ERROR]", error);
+    console.error("[UPDATE_EMPLOYEE_ERROR]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

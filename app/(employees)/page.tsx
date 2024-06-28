@@ -131,8 +131,10 @@ export default function EmployeeList() {
 
   const handleDelete = async (id: string) => {
     try {
-      await dispatch(deleteEmployeeById(id));
-      toast.success("Deleted employee");
+      await dispatch(deleteEmployeeById({id, triggerGetData: true}));
+      toast.success("Deleted employee", {
+        autoClose: 300
+      });
     } catch (error) {
       toast.error("Failed to delete employee!");
     }

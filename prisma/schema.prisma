@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+}
+
+// schema.prisma
+model Employee {
+  id        String   @id @default(uuid())
+  name      String
+  positions Position[]
+}
+
+model Position {
+  id                   String   @id @default(uuid())
+  employee             Employee @relation(fields: [employeeId], references: [id])
+  employeeId           String
+  positionResourceId   String
+  toolLanguages        ToolLanguage[]
+}
+
+model ToolLanguage {
+  id                    String   @id @default(uuid())
+  position              Position @relation(fields: [positionId], references: [id])
+  positionId            String
+  toolLanguageResourceId String
+  from                  String
+  to                    String
+  description           String
+  images                Image[]
+}
+
+model Image {
+  id              String   @id @default(uuid())
+  toolLanguage    ToolLanguage @relation(fields: [toolLanguageId], references: [id])
+  toolLanguageId  String
+  cdnUrl          String
+}

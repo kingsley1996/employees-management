@@ -119,7 +119,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
       </div>
       <div className="p-4 md:p-5">
         <div className="flex justify-between">
-          <h3 className="font-bold text-lg text-blue-400">{employee.name}</h3>
+          <h3 className="font-bold text-lg text-blue-400 truncate break-words w-52">{employee.name}</h3>
           <div className="font-semibold">{totalExperience}</div>
         </div>
         <div>

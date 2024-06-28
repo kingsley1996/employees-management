@@ -94,8 +94,13 @@ export default function CreateEmployeeForm() {
   const { id } = params;
   const [notFound, setNotFound] = useState(false);
 
-  const { loading, loadingPositionResources, loadingSubmit, editEmployee } =
-    useAppSelector((state: RootState) => state.employees);
+  const {
+    loading,
+    loadingPositionResources,
+    loadingSubmit,
+    loadingDelete,
+    editEmployee,
+  } = useAppSelector((state: RootState) => state.employees);
 
   const methods = useForm<IEditEmployeeForm>({
     defaultValues: defaultValues,
@@ -136,7 +141,9 @@ export default function CreateEmployeeForm() {
     const { positions, name } = data;
     try {
       await dispatch(updateEmployeeById({ id, positions, name }));
-      toast.success("Employee updated successfully!");
+      toast.success("Employee updated successfully!", {
+        autoClose: 300,
+      });
       setTimeout(() => {
         router.push("/");
       }, 300);
@@ -156,8 +163,10 @@ export default function CreateEmployeeForm() {
   const handleDelete = async () => {
     if (id) {
       try {
-        await dispatch(deleteEmployeeById(id));
-        toast.success("Deleted employee");
+        await dispatch(deleteEmployeeById({ id, triggerGetData: false }));
+        toast.success("Deleted employee", {
+          autoClose: 300,
+        });
         setTimeout(() => {
           router.push("/");
         }, 300);
@@ -214,9 +223,13 @@ export default function CreateEmployeeForm() {
               <button
                 type="button"
                 onClick={handleDelete}
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                className={`bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
+                  loadingDelete === "pending"
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
               >
-                Delete
+                {loadingDelete === "pending" ? "Deleting..." : "Delete"}
               </button>
               <div className="flex gap-4">
                 <button
@@ -229,9 +242,13 @@ export default function CreateEmployeeForm() {
                 <button
                   type="submit"
                   disabled={loadingSubmit === "pending"}
-                  className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  className={`bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
+                    loadingSubmit === "pending"
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
+                  }`}
                 >
-                  Save
+                  {loadingSubmit === "pending" ? "Saving..." : "Save"}
                 </button>
               </div>
             </div>

@@ -6,7 +6,7 @@ import {
   deleteEmployee,
   getEmployeeByIdApi,
   createEmployeeApi,
-  updateEmployeeApi
+  updateEmployeeApi,
 } from "../../api/employeesApi";
 import { Position } from "@/constants/employees";
 
@@ -37,6 +37,7 @@ interface EmployeesState {
   loading: "idle" | "pending" | "succeeded" | "failed";
   loadingPositionResources: "idle" | "pending" | "succeeded" | "failed";
   loadingSubmit: "idle" | "pending" | "succeeded" | "failed";
+  loadingDelete: "idle" | "pending" | "succeeded" | "failed";
   error: string | null;
   totalItems: number;
   totalPages: number;
@@ -70,6 +71,7 @@ const initialState: EmployeesState = {
   loading: "idle",
   loadingPositionResources: "idle",
   loadingSubmit: "idle",
+  loadingDelete: "idle",
   error: null,
 };
 
@@ -92,9 +94,23 @@ export const fetchPositionResources = createAsyncThunk(
 
 export const deleteEmployeeById = createAsyncThunk(
   "employees/deleteEmployeeById",
-  async (id: string) => {
-    const response = await deleteEmployee(id);
-    return response;
+  async (params: { id: string; triggerGetData: boolean }, { dispatch }) => {
+    try {
+      const response = await deleteEmployee(params.id);
+      if (params.triggerGetData) {
+        dispatch(
+          fetchEmployees({
+            pageNumber: 1,
+            pageSize: 10,
+            search: "",
+            append: false,
+          })
+        );
+      }
+      return response;
+    } catch {
+      console.log("[ERROR_DELETED_EMPLOYEE]");
+    }
   }
 );
 
@@ -116,13 +132,13 @@ export const updateEmployeeById = createAsyncThunk(
 );
 
 export const createEmployee = createAsyncThunk(
-    "employees/createEmployee",
-    async (params: CreateEmployeeParams, { getState }) => {
-      const { name, positions } = params;
-      const response = await createEmployeeApi(positions, name);
-      return { response };
-    }
-  );
+  "employees/createEmployee",
+  async (params: CreateEmployeeParams, { getState }) => {
+    const { name, positions } = params;
+    const response = await createEmployeeApi(positions, name);
+    return { response };
+  }
+);
 
 const employeeSlice = createSlice({
   name: "employees",
@@ -164,16 +180,13 @@ const employeeSlice = createSlice({
       })
 
       .addCase(deleteEmployeeById.pending, (state) => {
-        state.loading = "pending";
+        state.loadingDelete = "pending";
       })
       .addCase(deleteEmployeeById.fulfilled, (state, action) => {
-        state.loading = "succeeded";
-        state.employees = action.payload.data.pageItems;
-        state.totalItems = action.payload.data.totalItems;
-        state.totalPages = action.payload.data.totalPages;
+        state.loadingDelete = "succeeded";
       })
       .addCase(deleteEmployeeById.rejected, (state, action) => {
-        state.loading = "failed";
+        state.loadingDelete = "failed";
         state.error = action.error.message || null;
       })
 
@@ -212,7 +225,7 @@ const employeeSlice = createSlice({
       .addCase(updateEmployeeById.rejected, (state, action) => {
         state.loadingSubmit = "failed";
         state.error = action.error.message || null;
-      })
+      });
   },
 });
 

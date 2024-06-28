@@ -1,9 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
-import path from "path";
-import { readJsonFile, writeJsonFile } from "@/utils";
 import { v4 as uuid4 } from "uuid";
-
-const employeesFilePath = path.join(process.cwd(), "tmp", "employees.json");
+import prisma from "@/lib/prismadb";
 
 export async function GET(req: NextRequest) {
   try {
@@ -12,22 +9,47 @@ export async function GET(req: NextRequest) {
     let search = searchParams.get("search") || "";
     let pageNumber = Number(searchParams.get("pageNumber") || 1);
     let pageSize = Number(searchParams.get("pageSize") || 10);
-    const employeesData = readJsonFile(employeesFilePath);
-    let employees = employeesData.data.pageItems;
+    const skip = (pageNumber - 1) * pageSize;
+    const searchQuery = (search as string).toLowerCase();
 
-    const filtered = employees.filter((employee: any) =>
-      employee.name.toLowerCase().includes(search.toLowerCase())
-    );
-    const start = (pageNumber - 1) * pageSize;
-    const end = start + pageSize;
-    const paginated = filtered.slice(start, end);
+    const totalItems = await prisma.employee.count({
+      where: {
+        name: {
+          contains: searchQuery,
+        },
+      },
+    });
+
+    const totalPages = Math.ceil(totalItems / pageSize);
+
+    // Fetch employees with search criteria and pagination
+    const employees = await prisma.employee.findMany({
+      skip: skip,
+      take: pageSize,
+      where: {
+        name: {
+          contains: searchQuery,
+        },
+      },
+      include: {
+        positions: {
+          include: {
+            toolLanguages: {
+              include: {
+                images: true,
+              },
+            },
+          },
+        },
+      },
+    });
 
     return new NextResponse(
       JSON.stringify({
         data: {
-          totalItems: filtered.length,
-          totalPages: Math.ceil(filtered.length / pageSize),
-          pageItems: paginated,
+          totalItems,
+          totalPages,
+          pageItems: employees,
         },
       })
     );
@@ -39,37 +61,48 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const employeesData = readJsonFile(employeesFilePath);
-    const employees = employeesData.data.pageItems;
     const body = await req.json();
-    const newEmployee = {
-      id: uuid4(),
-      ...body,
-    };
+    const { name, positions } = body;
 
-    employees.push(newEmployee);
-    employeesData.data.pageItems = employees;
+    const employeeId = uuid4();
 
-    const totalItems = employees.length;
-    const pageSize = 10;
-    const totalPages = Math.ceil(totalItems / pageSize);
-
-    employeesData.data.totalItems = totalItems;
-    employeesData.data.totalPages = totalPages;
-
-    writeJsonFile(employeesFilePath, employeesData);
-
-    return new NextResponse(
-      JSON.stringify({
-        message: "Employee created successfully",
-        employee: newEmployee,
-        data: {
-          totalItems: totalItems,
-          totalPages: totalPages,
+    const newEmployee = await prisma.employee.create({
+      data: {
+        id: employeeId,
+        name,
+        positions: {
+          create: positions.map((position: any) => ({
+            positionResourceId: position.positionResourceId,
+            toolLanguages: {
+              create: position.toolLanguages.map((toolLanguage: any) => ({
+                toolLanguageResourceId: toolLanguage.toolLanguageResourceId,
+                from: toolLanguage.from,
+                to: toolLanguage.to,
+                description: toolLanguage.description,
+                images: {
+                  create: toolLanguage.images.map((image: any) => ({
+                    cdnUrl: image.cdnUrl,
+                  })),
+                },
+              })),
+            },
+          })),
         },
-      }),
-      { status: 201 }
-    );
+      },
+      include: {
+        positions: {
+          include: {
+            toolLanguages: {
+              include: {
+                images: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return new NextResponse(JSON.stringify(newEmployee), { status: 201 });
   } catch (error) {
     console.error("[CREATE_EMPLOYEES_ERROR]", error);
     return new NextResponse("Internal Error", { status: 500 });

@@ -85,7 +85,9 @@ export default function CreateEmployeeForm() {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const { loading } = useAppSelector((state: RootState) => state.employees);
+  const { loading, loadingSubmit } = useAppSelector(
+    (state: RootState) => state.employees
+  );
 
   const methods = useForm<ICreateEmployeeForm>({
     defaultValues: defaultValues,
@@ -101,7 +103,9 @@ export default function CreateEmployeeForm() {
   const onSubmit = async (data: any) => {
     try {
       await dispatch(createEmployee(data));
-      toast.success("Employee created successfully!");
+      toast.success("Employee created successfully!", {
+        autoClose: 300,
+      });
       setTimeout(() => {
         router.push("/");
       }, 300);
@@ -147,10 +151,14 @@ export default function CreateEmployeeForm() {
             </div>
             <button
               type="submit"
-              disabled={loading === "pending"}
-              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              disabled={loadingSubmit === "pending"}
+              className={`bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
+                loadingSubmit === "pending"
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
+              }`}
             >
-              Submit
+              {loadingSubmit === "pending" ? "Submitting..." : "Submit"}
             </button>
           </form>
         </FormProvider>
