@@ -35,8 +35,8 @@ export function FieldArrayToolLanguages({
   const formValues = getValues();
 
   useEffect(() => {
-    if (editEmployee && (editEmployee.positions[positionIndex].positionResourceId !== positionResourceId)) {
-      formValues.positions[positionIndex].toolLanguages.map((_, index) => {
+    if (editEmployee && (editEmployee.positions[positionIndex]?.positionResourceId !== positionResourceId)) {
+      formValues?.positions[positionIndex]?.toolLanguages?.map((_, index) => {
         setValue(`positions.${positionIndex}.toolLanguages.${index}.toolLanguageResourceId`, "")
       })
     }
