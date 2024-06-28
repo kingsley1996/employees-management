@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import StoreProvider from "@/app/StoreProvider";
 import { ToastContainer, toast } from "react-toastify";
+import AlertMessage from "@/components/AlertMessage";
 import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 
@@ -22,6 +23,7 @@ export default function RootLayout({
       <html lang="en">
         <body className={`${inter.className} bg-slate-50`}>
           <ToastContainer />
+          <AlertMessage />
           {children}
         </body>
       </html>

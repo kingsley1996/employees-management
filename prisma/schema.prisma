@@ -29,7 +29,7 @@ model ToolLanguage {
   toolLanguageResourceId String
   from                  String
   to                    String
-  description           String
+  description           String @db.VarChar(500)
   images                Image[]
 }
 
