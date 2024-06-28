@@ -1,11 +1,10 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { v4 as uuid4 } from "uuid";
 import { useAppSelector } from "@/lib/hooks";
 import { RootState } from "@/lib/store";
 import { ICreateEmployeeForm } from "../app/(employees)/create/page";
-import { ToolLanguageResource } from "@/lib/features/employees/employeeSlice";
 import FieldArrayImages from "./FieldArrayImages";
 import { toast } from "react-toastify";
 
@@ -13,19 +12,19 @@ export function FieldArrayToolLanguages({
   positionIndex,
   positionResourceId,
 }: {
+  isEdit?: boolean;
   positionIndex: number;
   positionResourceId: string;
 }) {
-  const [toolLanguages, setToolLanguages] = useState<ToolLanguageResource[]>(
-    []
-  );
-  const { positionResources } = useAppSelector(
+  const { positionResources, editEmployee } = useAppSelector(
     (state: RootState) => state.employees
   );
 
   const {
     register,
     control,
+    getValues,
+    setValue,
     formState: { errors, isSubmitted },
   } = useFormContext<ICreateEmployeeForm>();
   const { fields, append, remove } = useFieldArray({
@@ -33,15 +32,26 @@ export function FieldArrayToolLanguages({
     name: `positions.${positionIndex}.toolLanguages`,
   });
 
+  const formValues = getValues();
+
   useEffect(() => {
+    if (editEmployee && (editEmployee.positions[positionIndex].positionResourceId !== positionResourceId)) {
+      formValues.positions[positionIndex].toolLanguages.map((_, index) => {
+        setValue(`positions.${positionIndex}.toolLanguages.${index}.toolLanguageResourceId`, "")
+      })
+    }
+  },[positionResourceId])
+
+  const toolLanguageResources: any =  useMemo(() => {
     if (positionResourceId && positionResources.length > 0) {
       const currentPositionResources = positionResources.filter(
         (item) => item.positionResourceId === positionResourceId
       )[0];
       const toolLanguages = [...currentPositionResources.toolLanguageResources];
-      setToolLanguages(toolLanguages);
+      return toolLanguages;
     }
-  }, [positionResources, positionResourceId]);
+    return [];
+  }, [positionResourceId, positionResources])
 
   const removeToolLanguage = (index: number) => {
     if (fields.length > 1) {
@@ -80,11 +90,11 @@ export function FieldArrayToolLanguages({
                     <option value="" disabled>
                       Select Option
                     </option>
-                    {toolLanguages?.length > 0 &&
-                      toolLanguages.map((item: any) => (
+                    {toolLanguageResources?.length > 0 &&
+                      toolLanguageResources.map((item: any) => (
                         <option
                           value={item?.toolLanguageResourceId}
-                          key={`${item?.toolLanguageResourceId}-${item?.name}`}
+                          key={`${positionIndex}-${index}-${item?.toolLanguageResourceId}-${item?.name}`}
                         >
                           {item?.name}
                         </option>
@@ -177,6 +187,7 @@ export function FieldArrayToolLanguages({
                   {...register(
                     `positions.${positionIndex}.toolLanguages.${index}.description`
                   )}
+                  rows={4}
                   placeholder="Description"
                   className="w-full mt-1 block px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200"
                 />

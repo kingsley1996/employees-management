@@ -5,27 +5,27 @@
 			"name": "Frontend",
 			"toolLanguageResources": [
 				{
-					"toolLanguageResourceId": "1c04e335-e4dc-495e-9871-9ee24f1cfec9",
+					"toolLanguageResourceId": "1",
 					"positionResourceId": "5b2cbdad-fac2-4c74-b3a9-37348d451840",
 					"name": "Javascript"
 				},
 				{
-					"toolLanguageResourceId": "d793b434-f6dc-4790-8d68-72873dc9dcf8",
+					"toolLanguageResourceId": "2",
 					"positionResourceId": "5b2cbdad-fac2-4c74-b3a9-37348d451840",
 					"name": "ReactJS"
 				},
 				{
-					"toolLanguageResourceId": "bebe9d2e-5c62-4cf3-b58f-76e8faa78080",
+					"toolLanguageResourceId": "3",
 					"positionResourceId": "5b2cbdad-fac2-4c74-b3a9-37348d451840",
 					"name": "VueJS"
 				},
 				{
-					"toolLanguageResourceId": "b5b5f343-a9cc-460a-80b7-7e23754502d3",
+					"toolLanguageResourceId": "4",
 					"positionResourceId": "5b2cbdad-fac2-4c74-b3a9-37348d451840",
 					"name": "AngularJS"
 				},
 				{
-					"toolLanguageResourceId": "d2170776-730e-4876-a761-5ca9f141a93b",
+					"toolLanguageResourceId": "5",
 					"positionResourceId": "5b2cbdad-fac2-4c74-b3a9-37348d451840",
 					"name": "Jquery"
 				}
@@ -36,42 +36,42 @@
 			"name": "Backend",
 			"toolLanguageResources": [
 				{
-					"toolLanguageResourceId": "17488072-8674-4a04-8638-d0f6421e9373",
+					"toolLanguageResourceId": "6",
 					"positionResourceId": "b8511f87-2e7b-467a-b912-bc4e08890040",
 					"name": "PHP"
 				},
 				{
-					"toolLanguageResourceId": "93ef8fc4-a555-45ea-b12f-0ed5936fa6a3",
+					"toolLanguageResourceId": "7",
 					"positionResourceId": "b8511f87-2e7b-467a-b912-bc4e08890040",
 					"name": "Python"
 				},
 				{
-					"toolLanguageResourceId": "88ffe7e1-ce3c-4531-b358-4aa6a5ee2759",
+					"toolLanguageResourceId": "8",
 					"positionResourceId": "b8511f87-2e7b-467a-b912-bc4e08890040",
 					"name": "Ruby"
 				},
 				{
-					"toolLanguageResourceId": "f7a4f2b1-a31e-415b-80c1-ffbdc5301481",
+					"toolLanguageResourceId": "9",
 					"positionResourceId": "b8511f87-2e7b-467a-b912-bc4e08890040",
 					"name": "Java"
 				},
 				{
-					"toolLanguageResourceId": "4d7663c9-08a9-49c0-b21e-c33f07d9155a",
+					"toolLanguageResourceId": "10",
 					"positionResourceId": "b8511f87-2e7b-467a-b912-bc4e08890040",
 					"name": "Nodejs"
 				},
 				{
-					"toolLanguageResourceId": "2c03167a-0cf4-4cd9-a729-82f0dcd25c40",
+					"toolLanguageResourceId": "11",
 					"positionResourceId": "b8511f87-2e7b-467a-b912-bc4e08890040",
 					"name": "C"
 				},
 				{
-					"toolLanguageResourceId": "c31469f2-d110-4f2f-a0ab-8a9cc483e9e6",
+					"toolLanguageResourceId": "12",
 					"positionResourceId": "b8511f87-2e7b-467a-b912-bc4e08890040",
 					"name": "C++"
 				},
 				{
-					"toolLanguageResourceId": "9228af52-c835-4a5b-b799-3b83fae94d30",
+					"toolLanguageResourceId": "13",
 					"positionResourceId": "b8511f87-2e7b-467a-b912-bc4e08890040",
 					"name": ".NET"
 				}
@@ -82,32 +82,32 @@
 			"name": "Designer",
 			"toolLanguageResources": [
 				{
-					"toolLanguageResourceId": "c980667d-1164-424a-94e2-952ece2cf390",
+					"toolLanguageResourceId": "14",
 					"positionResourceId": "2754b3a6-bc57-4207-b880-a9b267b84122",
 					"name": "Adobe XD"
 				},
 				{
-					"toolLanguageResourceId": "2b61a656-b0f6-4cc9-ae72-3f977010dd10",
+					"toolLanguageResourceId": "15",
 					"positionResourceId": "2754b3a6-bc57-4207-b880-a9b267b84122",
 					"name": "Figma"
 				},
 				{
-					"toolLanguageResourceId": "a084429a-f61f-4c72-a604-b1cb5a7c4a48",
+					"toolLanguageResourceId": "16",
 					"positionResourceId": "2754b3a6-bc57-4207-b880-a9b267b84122",
 					"name": "Illustrator"
 				},
 				{
-					"toolLanguageResourceId": "8dc80b6d-7e72-498f-b6e6-1e0e92df7abc",
+					"toolLanguageResourceId": "17",
 					"positionResourceId": "2754b3a6-bc57-4207-b880-a9b267b84122",
 					"name": "InvisionStudio"
 				},
 				{
-					"toolLanguageResourceId": "0efa1675-aa38-4ed5-808c-a245f277dc9c",
+					"toolLanguageResourceId": "18",
 					"positionResourceId": "2754b3a6-bc57-4207-b880-a9b267b84122",
 					"name": "Photoshop"
 				},
 				{
-					"toolLanguageResourceId": "b00c3380-a3fb-461d-a1d6-083a9bc3cb15",
+					"toolLanguageResourceId": "19",
 					"positionResourceId": "2754b3a6-bc57-4207-b880-a9b267b84122",
 					"name": "Sketch"
 				}

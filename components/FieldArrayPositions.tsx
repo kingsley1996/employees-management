@@ -69,7 +69,7 @@ export function FieldArrayPositions({ isEdit = false }: { isEdit?: boolean }) {
                     Select Option
                   </option>
                   {positionResources.map((item: any) => (
-                    <option key={item.id} value={item.positionResourceId}>
+                    <option key={`${index}-${item.positionResourceId}`} value={item.positionResourceId}>
                       {item.name}
                     </option>
                   ))}
@@ -88,9 +88,9 @@ export function FieldArrayPositions({ isEdit = false }: { isEdit?: boolean }) {
                   {errors.positions?.at(index)?.positionResourceId?.message}
                 </p>
               )}
-              {/* Conditionally render FieldArrayToolLanguages if positionResourceId is selected */}
               {positionsActive[index] && (
                 <FieldArrayToolLanguages
+                  isEdit={isEdit}
                   positionResourceId={positionsActive[index]}
                   positionIndex={index}
                 />
