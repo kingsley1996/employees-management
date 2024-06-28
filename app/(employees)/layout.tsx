@@ -3,8 +3,8 @@ import type { Metadata } from 'next';
 
 
 export const metadata: Metadata = {
-  title: 'Dashboard | Athena',
-  description: 'SaaS AI Platform.',
+  title: 'Employee Management',
+  description: 'Employee Management Application.',
 };
 
 export default async function DashboardLayout({
