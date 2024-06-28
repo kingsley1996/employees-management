@@ -19,7 +19,7 @@ const PAGE_SIZE = 10;
 
 export default function EmployeeList() {
   const dispatch = useAppDispatch();
-  const { employees, positionResources, loading, error, totalPages } =
+  const { employees, positionResources, loading, loadingDelete, error, totalPages } =
     useAppSelector((state: RootState) => state.employees);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -164,7 +164,7 @@ export default function EmployeeList() {
           Add employee
         </Link>
       </div>
-      {loading === "pending" || loading === "idle" ? (
+      {loading === "pending" || loading === "idle" || loadingDelete === 'pending' ? (
         <SkeletonCard />
       ) : sortedEmployees.length === 0 ? (
         <EmptyEmployeeList />
