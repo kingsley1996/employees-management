@@ -19,7 +19,7 @@ const CustomRightArrow = ({ onClick }) => {
     onClick();
   };
 
-  return <button className="react-multiple-carousel__arrow react-multiple-carousel__arrow--right " onClick={handleOnClick}></button>;
+  return <button className="react-multiple-carousel__arrow react-multiple-carousel__arrow--right " onClick={handleOnClick} aria-label="Carousel right button"></button>;
 };
 
 const CustomLeftArrow = ({ onClick }) => {
@@ -28,7 +28,7 @@ const CustomLeftArrow = ({ onClick }) => {
     onClick();
   };
 
-  return <button className="react-multiple-carousel__arrow react-multiple-carousel__arrow--left" onClick={handleOnClick}></button>;
+  return <button className="react-multiple-carousel__arrow react-multiple-carousel__arrow--left" onClick={handleOnClick} aria-label="Carousel left button"></button>;
 }
 
 const EmployeeCard: React.FC<EmployeeCardProps> = ({
@@ -112,7 +112,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
               src={image.cdnUrl}
               alt="Tool/language"
               className="rounded-t-lg object-cover w-full h-[220px]"
-              priority
+              loading="eager"
             />
           ))}
         </Carousel>

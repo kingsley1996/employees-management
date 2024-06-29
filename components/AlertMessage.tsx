@@ -21,6 +21,7 @@ const AlertMessage = () => {
               <p>This is a demo application hosted on a free platform. It may experience slowness.</p>
             </div>
             <button
+              aria-label="Button close alert"
               className="text-orange-700 hover:text-orange-900"
               onClick={handleClose}
             >

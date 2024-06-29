@@ -6,7 +6,7 @@ import Image from "next/image";
 import { ArrowUpTrayIcon, XCircleIcon } from "@heroicons/react/24/solid";
 import { toast } from "react-toastify";
 import { ICreateEmployeeForm } from "@/app/(employees)/create/page";
-import { useUploadImageContext } from '@/app/context/UploadImageContext';
+import { useUploadImageContext } from "@/app/context/UploadImageContext";
 
 interface FieldArrayImagesProps {
   isEdit?: boolean;
@@ -120,7 +120,7 @@ const FieldArrayImages: React.FC<FieldArrayImagesProps> = ({
       });
       setImagesPreview(newImagesPreview);
     } else {
-      toast.error("Must have at least 1 photo!")
+      toast.error("Must have at least 1 photo!");
     }
   };
 
@@ -154,7 +154,7 @@ const FieldArrayImages: React.FC<FieldArrayImagesProps> = ({
                     src={imagesPreview[index]}
                     alt="Image"
                     className="object-fit rounded-2xl"
-                    priority
+                    loading="lazy"
                   />
                   <XCircleIcon
                     onClick={() => removeImage(index)}
